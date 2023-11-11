@@ -14,6 +14,7 @@ import { CategoryModule } from './feature/category/category.module';
 import { BudgetModule } from './feature/budget/budget.module';
 import { ExpenseModule } from './feature/expense/expense.module';
 import { SearchModule } from './feature/search/search.module';
+import { AuthModule } from './feature/auth/auth.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { SearchModule } from './feature/search/search.module';
         };
       },
     }),
+    AuthModule,
     UserModule,
     CategoryModule,
     BudgetModule,
