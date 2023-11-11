@@ -9,6 +9,11 @@ import { User } from './entity/user.entity';
 import { Category } from './entity/category.entity';
 import { Budget } from './entity/budget.entity';
 import { Expense } from './entity/expense.entity';
+import { UserModule } from './feature/user/user.module';
+import { CategoryModule } from './feature/category/category.module';
+import { BudgetModule } from './feature/budget/budget.module';
+import { ExpenseModule } from './feature/expense/expense.module';
+import { SearchModule } from './feature/search/search.module';
 
 @Module({
   imports: [
@@ -35,6 +40,11 @@ import { Expense } from './entity/expense.entity';
         };
       },
     }),
+    UserModule,
+    CategoryModule,
+    BudgetModule,
+    ExpenseModule,
+    SearchModule,
   ],
   controllers: [AppController],
   providers: [AppService],
