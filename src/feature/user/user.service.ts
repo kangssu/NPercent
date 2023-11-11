@@ -22,4 +22,14 @@ export class UserService {
   getUserByEmail(email: string): Promise<User> {
     return this.userRepository.findOneBy({ email: email });
   }
+
+  async updateUserByEmail(userPasswordResponse: string, user: User): Promise<User> {
+    if(userPasswordResponse){
+      const bcryptPassword = await bcrypt.hash(userPasswordResponse, 10);
+      user.password = bcryptPassword;
+    }
+
+    await this.userRepository.save(user);
+    return user;
+  }
 }
