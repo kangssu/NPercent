@@ -32,7 +32,7 @@ export class CategoryService {
     return this.categoryRepository.save(category);
   }
 
-  getCategoryByNameAndUserId(name: string, userId: number) {
+  getCategoryByNameAndUserId(name: string, userId: number): Promise<Category> {
     return this.categoryRepository.findOne({
       where: {
         name: name,
@@ -41,7 +41,15 @@ export class CategoryService {
     });
   }
 
-  getCategoryById(id: number) {
+  getCategoryById(id: number): Promise<Category> {
     return this.categoryRepository.findOneBy({ id: id });
+  }
+
+  async getCategories(userId: number): Promise<Category[]> {
+    return await this.categoryRepository
+      .createQueryBuilder('categories')
+      .where('categories.userId = :userId', { userId })
+      .orWhere('categories.userId = :defaultUserId', { defaultUserId: 0 })
+      .getMany();
   }
 }

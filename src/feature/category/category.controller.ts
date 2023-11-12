@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpException,
   Param,
   ParseIntPipe,
@@ -88,6 +89,16 @@ export class CategoryController {
         updateCategoryDto,
         category,
       ),
+    };
+  }
+
+  @Get()
+  async getCategories(
+    @UserInfo() userResponse: User,
+  ): Promise<ApiResult<Category[]>> {
+    return {
+      success: true,
+      data: await this.categoryService.getCategories(userResponse.id),
     };
   }
 }
