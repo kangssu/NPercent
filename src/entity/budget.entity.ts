@@ -17,6 +17,9 @@ export class Budget {
   @PrimaryGeneratedColumn()
   id!: number;
 
+  @Column()
+  categoryId: number;
+
   @Column({ type: 'varchar', length: 100 })
   amount!: string;
 

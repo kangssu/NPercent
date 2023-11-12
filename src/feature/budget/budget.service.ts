@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Budget } from 'src/entity/budget.entity';
 import { Repository } from 'typeorm';
-import { CreateBudgetDto } from './budget.dto';
+import { CreateBudgetDto, UpdateBudgetDto } from './budget.dto';
 import { Util } from 'src/util/util';
 
 @Injectable()
@@ -33,8 +33,23 @@ export class BudgetService {
     return budgets;
   }
 
+  async updateBudgetById(
+    updateBudgetDto: UpdateBudgetDto,
+    budget: Budget,
+  ): Promise<Budget> {
+    if (updateBudgetDto.categoryId) {
+      budget.categoryId = updateBudgetDto.categoryId;
+    }
+    if (updateBudgetDto.amount) {
+      const amount = Util.RemoveAllExceptNumbers(updateBudgetDto.amount);
+      budget.amount = amount;
+    }
+
+    return await this.budgetRepository.save(budget);
+  }
+
   async getBudgetsByCategoryIds(
-    createBudgetDto: CreateBudgetDto[],
+    createBudgetDto: CreateBudgetDto[] | UpdateBudgetDto[],
   ): Promise<Budget[]> {
     const categoryIds = createBudgetDto.map((budget) => budget.categoryId);
     const budgets = await this.budgetRepository
@@ -44,5 +59,9 @@ export class BudgetService {
       .getMany();
 
     return budgets;
+  }
+
+  getBudgetById(id: number): Promise<Budget> {
+    return this.budgetRepository.findOneBy({ id: id });
   }
 }
