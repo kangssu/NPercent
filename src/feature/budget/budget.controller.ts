@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpException,
   Param,
   ParseIntPipe,
@@ -82,6 +83,16 @@ export class BudgetController {
     return {
       success: true,
       data: await this.budgetService.updateBudgetById(updateBudgetDto, budget),
+    };
+  }
+
+  @Get()
+  async getBudgets(
+    @UserInfo() userResponse: User,
+  ): Promise<ApiResult<Budget[]>> {
+    return {
+      success: true,
+      data: await this.budgetService.getBudgets(userResponse.id),
     };
   }
 }

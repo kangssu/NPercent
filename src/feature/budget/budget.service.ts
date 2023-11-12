@@ -64,4 +64,12 @@ export class BudgetService {
   getBudgetById(id: number): Promise<Budget> {
     return this.budgetRepository.findOneBy({ id: id });
   }
+
+  getBudgets(userId: number): Promise<Budget[]> {
+    return this.budgetRepository.find({
+      where: {
+        user: { id: userId },
+      },
+    });
+  }
 }
