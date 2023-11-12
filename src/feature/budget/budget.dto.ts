@@ -1,4 +1,4 @@
-import { IsNumber, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateBudgetDto {
   @IsNumber()
@@ -6,4 +6,14 @@ export class CreateBudgetDto {
 
   @IsString()
   amount!: string;
+}
+
+export class UpdateBudgetDto {
+  @IsOptional()
+  @IsNumber()
+  categoryId?: number;
+
+  @IsOptional()
+  @IsString()
+  amount?: string;
 }

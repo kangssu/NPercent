@@ -2,11 +2,14 @@ import {
   Body,
   Controller,
   HttpException,
+  Param,
+  ParseIntPipe,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
 import { BudgetService } from './budget.service';
-import { CreateBudgetDto } from './budget.dto';
+import { CreateBudgetDto, UpdateBudgetDto } from './budget.dto';
 import { Budget } from 'src/entity/budget.entity';
 import { ApiResult } from 'src/custom/resultApi';
 import { JwtAuthGuard } from '../auth/guard/jwt.guard';
@@ -28,7 +31,7 @@ export class BudgetController {
   ): Promise<ApiResult<Budget[]>> {
     const duplicateCategoryIds =
       Util.CheckDuplicateCategoryIds(createBudgetDto);
-    const budget =
+    const duplicateBudget =
       await this.budgetService.getBudgetsByCategoryIds(createBudgetDto);
 
     if (duplicateCategoryIds.length > 0) {
@@ -37,7 +40,7 @@ export class BudgetController {
         ErrorHttpStatus.BAD_REQEUST,
       );
     }
-    if (budget.length > 0) {
+    if (duplicateBudget.length > 0) {
       throw new HttpException(
         ErrorMessage.CATEGORY_ALREADY_REGISTERED_IN_THE_BUDGET,
         ErrorHttpStatus.BAD_REQEUST,
@@ -50,6 +53,35 @@ export class BudgetController {
         createBudgetDto,
         userResponse.id,
       ),
+    };
+  }
+
+  @Patch('/:id')
+  async updateBudgetById(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateBudgetDto: UpdateBudgetDto,
+  ): Promise<ApiResult<Budget>> {
+    const budget = await this.budgetService.getBudgetById(id);
+    const duplicateBudget = await this.budgetService.getBudgetsByCategoryIds([
+      updateBudgetDto,
+    ]);
+
+    if (!budget) {
+      throw new HttpException(
+        ErrorMessage.NOT_FOUND_BUDGET,
+        ErrorHttpStatus.NOT_FOUND,
+      );
+    }
+    if (duplicateBudget.length > 0) {
+      throw new HttpException(
+        ErrorMessage.CATEGORY_ALREADY_REGISTERED_IN_THE_BUDGET,
+        ErrorHttpStatus.BAD_REQEUST,
+      );
+    }
+
+    return {
+      success: true,
+      data: await this.budgetService.updateBudgetById(updateBudgetDto, budget),
     };
   }
 }
