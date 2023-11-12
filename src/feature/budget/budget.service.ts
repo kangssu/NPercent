@@ -72,4 +72,8 @@ export class BudgetService {
       },
     });
   }
+
+  deleteBudgetById(id: number): Promise<Budget> {
+    return this.budgetRepository.softRemove({ id: id });
+  }
 }

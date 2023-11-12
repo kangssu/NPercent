@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   Param,
@@ -93,6 +94,16 @@ export class BudgetController {
     return {
       success: true,
       data: await this.budgetService.getBudgets(userResponse.id),
+    };
+  }
+
+  @Delete('/:id')
+  async deleteBudgetById(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ApiResult<Budget>> {
+    return {
+      success: true,
+      data: await this.budgetService.deleteBudgetById(id),
     };
   }
 }
