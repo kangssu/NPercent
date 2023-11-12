@@ -8,3 +8,13 @@ export class CreateCategoryDto {
   @IsNumber()
   userId?: number;
 }
+
+export class UpdateCategoryDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsNumber()
+  userId?: number;
+}

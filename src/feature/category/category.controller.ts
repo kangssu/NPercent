@@ -2,12 +2,15 @@ import {
   Body,
   Controller,
   HttpException,
+  Param,
+  ParseIntPipe,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { Category } from 'src/entity/category.entity';
-import { CreateCategoryDto } from './category.dto';
+import { CreateCategoryDto, UpdateCategoryDto } from './category.dto';
 import { UserInfo } from 'src/decorator/userDecorator';
 import { User } from 'src/entity/user.entity';
 import { ApiResult } from 'src/custom/resultApi';
@@ -26,7 +29,7 @@ export class CategoryController {
     @UserInfo() userResponse: User,
     @Body() createCategoryDto: CreateCategoryDto,
   ): Promise<ApiResult<Category>> {
-    const isduplicate = Util.CheckDuplicateDefaultCategory(
+    const isDuplicate = Util.CheckDuplicateDefaultCategory(
       createCategoryDto.name,
     );
     const category = await this.categoryService.getCategoryByNameAndUserId(
@@ -34,7 +37,7 @@ export class CategoryController {
       userResponse.id,
     );
 
-    if (isduplicate || category) {
+    if (isDuplicate || category) {
       throw new HttpException(
         ErrorMessage.DUPLICATE_CATEGORY_NAME_EXISTS,
         ErrorHttpStatus.BAD_REQEUST,
@@ -46,6 +49,44 @@ export class CategoryController {
       data: await this.categoryService.createCategory(
         userResponse.id,
         createCategoryDto,
+      ),
+    };
+  }
+
+  @Patch('/:id')
+  async updateCategoryById(
+    @UserInfo() userResponse: User,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateCategoryDto: UpdateCategoryDto,
+  ): Promise<ApiResult<Category>> {
+    const category = await this.categoryService.getCategoryById(id);
+    const isDuplicate = Util.CheckDuplicateDefaultCategory(
+      updateCategoryDto.name,
+    );
+    const duplicateCategory =
+      await this.categoryService.getCategoryByNameAndUserId(
+        updateCategoryDto.name,
+        userResponse.id,
+      );
+
+    if (!category) {
+      throw new HttpException(
+        ErrorMessage.NOT_FOUND_CATEGORY,
+        ErrorHttpStatus.NOT_FOUND,
+      );
+    }
+    if (isDuplicate || duplicateCategory) {
+      throw new HttpException(
+        ErrorMessage.DUPLICATE_CATEGORY_NAME_EXISTS,
+        ErrorHttpStatus.BAD_REQEUST,
+      );
+    }
+
+    return {
+      success: true,
+      data: await this.categoryService.updateCategoryByIdAndUserId(
+        updateCategoryDto,
+        category,
       ),
     };
   }
