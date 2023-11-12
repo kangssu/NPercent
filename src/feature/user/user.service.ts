@@ -23,9 +23,9 @@ export class UserService {
     return this.userRepository.findOneBy({ email: email });
   }
 
-  async updateUserByEmail(userPasswordResponse: string, user: User): Promise<User> {
-    if(userPasswordResponse){
-      const bcryptPassword = await bcrypt.hash(userPasswordResponse, 10);
+  async updateUserByEmail(newPassword: string, user: User): Promise<User> {
+    if(newPassword){
+      const bcryptPassword = await bcrypt.hash(newPassword, 10);
       user.password = bcryptPassword;
     }
 
