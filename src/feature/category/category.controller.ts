@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   Param,
@@ -99,6 +100,17 @@ export class CategoryController {
     return {
       success: true,
       data: await this.categoryService.getCategories(userResponse.id),
+    };
+  }
+
+  @Delete('/:id')
+  async deleteCategoryById(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ApiResult<Category>> {
+    // TODO: 예산으로 등록된 카테고리가 있을 경우 이셉션 처리
+    return {
+      success: true,
+      data: await this.categoryService.deleteCategoryById(id),
     };
   }
 }
