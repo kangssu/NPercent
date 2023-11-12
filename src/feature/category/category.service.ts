@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from 'src/entity/category.entity';
 import { Repository } from 'typeorm';
-import { CreateCategoryDto } from './category.dto';
+import { CreateCategoryDto, UpdateCategoryDto } from './category.dto';
 
 @Injectable()
 export class CategoryService {
@@ -21,6 +21,17 @@ export class CategoryService {
     });
   }
 
+  updateCategoryByIdAndUserId(
+    updateCategoryDto: UpdateCategoryDto,
+    category: Category,
+  ): Promise<Category> {
+    if (updateCategoryDto) {
+      category.name = updateCategoryDto.name;
+    }
+
+    return this.categoryRepository.save(category);
+  }
+
   getCategoryByNameAndUserId(name: string, userId: number) {
     return this.categoryRepository.findOne({
       where: {
@@ -28,5 +39,9 @@ export class CategoryService {
         user: { id: userId },
       },
     });
+  }
+
+  getCategoryById(id: number) {
+    return this.categoryRepository.findOneBy({ id: id });
   }
 }

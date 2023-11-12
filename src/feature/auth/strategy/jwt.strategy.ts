@@ -23,7 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       return user;
     } else {
       throw new HttpException(
-        ErrorMessage.USER_NOT_FOUND,
+        ErrorMessage.NOT_FOUND_USER,
         ErrorHttpStatus.NOT_FOUND,
       );
     }

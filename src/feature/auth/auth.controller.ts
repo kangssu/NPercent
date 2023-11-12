@@ -22,7 +22,7 @@ export class AuthController {
 
     if (!user) {
       throw new HttpException(
-        ErrorMessage.USER_NOT_FOUND,
+        ErrorMessage.NOT_FOUND_USER,
         ErrorHttpStatus.NOT_FOUND,
       );
     }
