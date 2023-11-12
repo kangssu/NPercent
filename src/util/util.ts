@@ -1,3 +1,5 @@
+import { CreateBudgetDto } from 'src/feature/budget/budget.dto';
+
 export class Util {
   public static CheckDuplicateDefaultCategory(categoryName: string) {
     const defaultCategory = [
@@ -15,5 +17,17 @@ export class Util {
     ];
 
     return defaultCategory.includes(categoryName);
+  }
+
+  public static CheckDuplicateCategoryIds(createBudgetDto: CreateBudgetDto[]) {
+    const categoryIds = createBudgetDto.map((budget) => budget.categoryId);
+    const duplicateCategoryIds = categoryIds.filter(
+      (item, index) => categoryIds.indexOf(item) !== index,
+    );
+    return duplicateCategoryIds;
+  }
+
+  public static RemoveAllExceptNumbers(amount: string) {
+    return amount.replace(/[^0-9]/g, '');
   }
 }

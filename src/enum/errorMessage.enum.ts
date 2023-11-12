@@ -5,4 +5,5 @@ export enum ErrorMessage {
   USER_PASSWORD_SAME_AS_PREVIOUS = '이전 비밀번호와 동일합니다.',
   DUPLICATE_CATEGORY_NAME_EXISTS = '중복된 카테고리 이름이 존재합니다.',
   NOT_FOUND_CATEGORY = '존재하지 않는 카테고리 입니다.',
+  CATEGORY_ALREADY_REGISTERED_IN_THE_BUDGET = '예산에 이미 등록되어 있는 카테고리 입니다.',
 }
