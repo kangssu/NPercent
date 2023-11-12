@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   Param,
@@ -99,6 +100,16 @@ export class CategoryController {
     return {
       success: true,
       data: await this.categoryService.getCategories(userResponse.id),
+    };
+  }
+
+  @Delete('/:id')
+  async deleteCategoryById(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ApiResult<Category>> {
+    return {
+      success: true,
+      data: await this.categoryService.deleteCategoryById(id),
     };
   }
 }

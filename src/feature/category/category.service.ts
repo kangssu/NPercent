@@ -52,4 +52,8 @@ export class CategoryService {
       .orWhere('categories.userId = :defaultUserId', { defaultUserId: 0 })
       .getMany();
   }
+
+  deleteCategoryById(id: number): Promise<Category> {
+    return this.categoryRepository.softRemove({ id: id });
+  }
 }
