@@ -11,7 +11,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { BudgetService } from './budget.service';
-import { CreateBudgetDto, UpdateBudgetDto } from './budget.dto';
+import {
+  CreateBudgetDto,
+  UpdateBudgetDto,
+  RecommendBudgetDto,
+} from './budget.dto';
 import { Budget } from 'src/entity/budget.entity';
 import { ApiResult } from 'src/custom/resultApi';
 import { JwtAuthGuard } from '../auth/guard/jwt.guard';
@@ -20,11 +24,15 @@ import { UserInfo } from 'src/decorator/userDecorator';
 import { ErrorMessage } from 'src/enum/errorMessage.enum';
 import { ErrorHttpStatus } from 'src/enum/errorHttpStatus.enum';
 import { Util } from 'src/util/util';
+import { CategoryLib } from '../category/category.lib';
 
 @UseGuards(JwtAuthGuard)
 @Controller('/budgets')
 export class BudgetController {
-  constructor(private readonly budgetService: BudgetService) {}
+  constructor(
+    private readonly budgetService: BudgetService,
+    private readonly categoryLib: CategoryLib,
+  ) {}
 
   @Post()
   async createBudgets(
@@ -33,8 +41,14 @@ export class BudgetController {
   ): Promise<ApiResult<Budget[]>> {
     const duplicateCategoryIds =
       Util.CheckDuplicateCategoryIds(createBudgetDto);
-    const duplicateBudget =
-      await this.budgetService.getBudgetsByCategoryIds(createBudgetDto);
+    const duplicateBudget = await this.budgetService.getBudgetsByCategoryIds(
+      userResponse.id,
+      createBudgetDto,
+    );
+    const myCategory = await this.categoryLib.getCategoriesByUserIdAndIds(
+      userResponse.id,
+      createBudgetDto,
+    );
 
     if (duplicateCategoryIds.length > 0) {
       throw new HttpException(
@@ -45,6 +59,12 @@ export class BudgetController {
     if (duplicateBudget.length > 0) {
       throw new HttpException(
         ErrorMessage.CATEGORY_ALREADY_REGISTERED_IN_THE_BUDGET,
+        ErrorHttpStatus.BAD_REQEUST,
+      );
+    }
+    if (myCategory.length < 1) {
+      throw new HttpException(
+        ErrorMessage.ANOTHER_USER_CATEGORY_EXISTS,
         ErrorHttpStatus.BAD_REQEUST,
       );
     }
@@ -61,12 +81,14 @@ export class BudgetController {
   @Patch('/:id')
   async updateBudgetById(
     @Param('id', ParseIntPipe) id: number,
+    @UserInfo() userResponse: User,
     @Body() updateBudgetDto: UpdateBudgetDto,
   ): Promise<ApiResult<Budget>> {
     const budget = await this.budgetService.getBudgetById(id);
-    const duplicateBudget = await this.budgetService.getBudgetsByCategoryIds([
-      updateBudgetDto,
-    ]);
+    const duplicateBudget = await this.budgetService.getBudgetsByCategoryIds(
+      userResponse.id,
+      [updateBudgetDto],
+    );
 
     if (!budget) {
       throw new HttpException(
@@ -95,6 +117,17 @@ export class BudgetController {
       success: true,
       data: await this.budgetService.getBudgets(userResponse.id),
     };
+  }
+
+  @Get('/recommend')
+  getBudgetsRecommend(
+    @UserInfo() userResponse: User,
+    @Body() RecommendBudgetDto: RecommendBudgetDto,
+  ): Promise<{ categoryName: string; recommendAmount: number }[]> {
+    return this.budgetService.getBudgetRecommend(
+      userResponse.id,
+      RecommendBudgetDto,
+    );
   }
 
   @Delete('/:id')
