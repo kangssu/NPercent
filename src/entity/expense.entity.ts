@@ -16,6 +16,12 @@ export class Expense {
   @PrimaryGeneratedColumn()
   id!: number;
 
+  @Column()
+  userId!: number;
+
+  @Column()
+  categoryId!: number;
+
   @Column({ type: 'varchar', length: 100 })
   amount!: string;
 

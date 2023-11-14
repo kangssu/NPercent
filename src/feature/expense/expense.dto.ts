@@ -1,4 +1,9 @@
-import { IsBoolean, IsDate, IsNumber, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateExpenseDto {
   @IsNumber()
@@ -15,4 +20,26 @@ export class CreateExpenseDto {
 
   @IsBoolean()
   isExcludingTotal!: boolean;
+}
+
+export class UpdateExpenseDto {
+  @IsOptional()
+  @IsNumber()
+  categoryId?: number;
+
+  @IsOptional()
+  @IsString()
+  amount?: string;
+
+  @IsOptional()
+  @IsString()
+  comment?: string;
+
+  @IsOptional()
+  @IsString()
+  expenseDate?: Date;
+
+  @IsOptional()
+  @IsBoolean()
+  isExcludingTotal?: boolean;
 }

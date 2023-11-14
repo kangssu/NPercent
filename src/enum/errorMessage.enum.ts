@@ -8,4 +8,5 @@ export enum ErrorMessage {
   CATEGORY_ALREADY_REGISTERED_IN_THE_BUDGET = '예산에 이미 등록되어 있는 카테고리 입니다.',
   NOT_FOUND_BUDGET = '존재하지 않는 예산 입니다.',
   ANOTHER_USER_CATEGORY_EXISTS = '다른 유저의 카테고리가 존재합니다.',
+  NOT_FOUND_EXPENSE = '존재하지 않는 지출 내역 입니다.',
 }
