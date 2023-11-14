@@ -18,7 +18,10 @@ export class Budget {
   id!: number;
 
   @Column()
-  categoryId: number;
+  userId!: number;
+
+  @Column()
+  categoryId!: number;
 
   @Column({ type: 'varchar', length: 100 })
   amount!: string;
@@ -36,7 +39,10 @@ export class Budget {
   @JoinColumn({ name: 'user_id' })
   user!: User;
 
-  @OneToOne(() => Category)
+  @ManyToOne(() => Category, (category) => category.id)
   @JoinColumn({ name: 'category_id' })
   category: Category;
+
+  // DB에 존재하지 않는 컬럼
+  totalAmount?: string;
 }

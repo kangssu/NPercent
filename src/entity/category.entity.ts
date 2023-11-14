@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 import { Expense } from './expense.entity';
+import { Budget } from './budget.entity';
 
 @Entity('categories')
 export class Category {
@@ -35,6 +36,9 @@ export class Category {
   @ManyToOne(() => User, (user) => user.id)
   @JoinColumn({ name: 'user_id' })
   user!: User;
+
+  @OneToMany(() => Budget, (budgets) => budgets.category)
+  budgets!: Budget[];
 
   @OneToMany(() => Expense, (expense) => expense.category)
   expenses!: Expense[];

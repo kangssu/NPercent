@@ -17,3 +17,8 @@ export class UpdateBudgetDto {
   @IsString()
   amount?: string;
 }
+
+export class RecommendBudgetDto {
+  @IsString()
+  amount!: string;
+}
