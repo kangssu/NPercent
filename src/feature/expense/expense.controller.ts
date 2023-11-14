@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   HttpException,
   Param,
   ParseIntPipe,
@@ -51,8 +52,21 @@ export class ExpenseController {
       );
     }
     return {
-      success:true,
-      data:await this.expenseService.updateExpenseById(expense, updateExpenseDto),
+      success: true,
+      data: await this.expenseService.updateExpenseById(
+        expense,
+        updateExpenseDto,
+      ),
+    };
+  }
+
+  @Delete('/:id')
+  async deleteExpenseById(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ApiResult<Expense>> {
+    return {
+      success: true,
+      data: await this.expenseService.deleteExpenseById(id),
     };
   }
 }

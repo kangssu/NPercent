@@ -44,4 +44,8 @@ export class ExpenseService {
   getExpenseById(id: number): Promise<Expense> {
     return this.expenseRepository.findOneBy({ id: id });
   }
+
+  deleteExpenseById(id: number): Promise<Expense> {
+    return this.expenseRepository.softRemove({ id: id });
+  }
 }
