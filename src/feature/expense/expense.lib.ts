@@ -44,6 +44,7 @@ export class ExpenseLib {
       });
     }
 
+    // TODO: 리턴시 지출 총합과 카테고리별 총합 추가.
     const expenses = await query.getMany();
     return expenses;
   }

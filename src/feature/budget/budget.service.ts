@@ -94,12 +94,13 @@ export class BudgetService {
     userId: number,
     recommendBudgetDto: RecommendBudgetDto,
   ): Promise<{ categoryName: string; recommendAmount: number }[]> {
+    // TODO: 사용자가 입력한 예산 총합과 다른 유저들의 예산 총합이 같은 예산 리스트만 불러오기.
     const otherUserBudgets = await this.budgetRepository
       .createQueryBuilder('budgets')
       .leftJoinAndSelect('budgets.category', 'category')
       .where('budgets.userId != :userId', { userId: userId })
       .getMany();
-
+    
     const otherUserBudgetTotalAmounts = await this.budgetRepository
       .createQueryBuilder('budgets')
       .select([
