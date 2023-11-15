@@ -16,7 +16,7 @@ export class CreateExpenseDto {
   comment!: string;
 
   @IsString()
-  expenseDate!: Date;
+  expensedAt!: Date;
 
   @IsBoolean()
   isExcludingTotal!: boolean;
@@ -37,7 +37,7 @@ export class UpdateExpenseDto {
 
   @IsOptional()
   @IsString()
-  expenseDate?: Date;
+  expensedAt?: Date;
 
   @IsOptional()
   @IsBoolean()

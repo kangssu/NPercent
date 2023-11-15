@@ -32,7 +32,7 @@ export class Expense {
   isExcludingTotal!: boolean;
 
   @Column()
-  expenseDate!: Date;
+  expensedAt!: Date;
 
   @CreateDateColumn()
   createdAt!: Date;

@@ -31,8 +31,8 @@ export class ExpenseService {
     if (updateExpenseDto.comment) {
       expense.comment = updateExpenseDto.comment;
     }
-    if (updateExpenseDto.expenseDate) {
-      expense.expenseDate = updateExpenseDto.expenseDate;
+    if (updateExpenseDto.expensedAt) {
+      expense.expensedAt = updateExpenseDto.expensedAt;
     }
     if (expense.isExcludingTotal !== undefined) {
       expense.isExcludingTotal = updateExpenseDto.isExcludingTotal;
