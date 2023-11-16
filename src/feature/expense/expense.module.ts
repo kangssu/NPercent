@@ -4,9 +4,10 @@ import { Expense } from 'src/entity/expense.entity';
 import { ExpenseController } from './expense.controller';
 import { ExpenseService } from './expense.service';
 import { ExpenseLib } from './expense.lib';
+import { BudgetModule } from '../budget/budget.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Expense])],
+  imports: [TypeOrmModule.forFeature([Expense]), BudgetModule],
   controllers: [ExpenseController],
   providers: [ExpenseService, ExpenseLib],
   exports: [ExpenseLib],

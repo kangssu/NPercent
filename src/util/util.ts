@@ -30,4 +30,12 @@ export class Util {
   public static RemoveAllExceptNumbers(amount: string) {
     return amount.replace(/[^0-9]/g, '');
   }
+
+  public static SumCalculation(array) {
+    return array
+      .map((array) => Number(array.amount))
+      .reduce((acc, cur) => {
+        return acc + cur;
+      });
+  }
 }

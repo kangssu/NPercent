@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpException,
   Param,
   ParseIntPipe,
@@ -9,7 +10,10 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ExpenseService } from './expense.service';
+import {
+  ExpenseService,
+  CategoriesAvailableAmountObject as CategoriesAvailableAmountObject,
+} from './expense.service';
 import { CreateExpenseDto, UpdateExpenseDto } from './expense.dto';
 import { Expense } from 'src/entity/expense.entity';
 import { User } from 'src/entity/user.entity';
@@ -57,6 +61,16 @@ export class ExpenseController {
         expense,
         updateExpenseDto,
       ),
+    };
+  }
+
+  @Get('/today-recommend')
+  async getTodayRecommendExpenses(
+    @UserInfo() userResponse: User,
+  ): Promise<ApiResult<CategoriesAvailableAmountObject[]>> {
+    return {
+      success: true,
+      data: await this.expenseService.getExpenseByUserId(userResponse.id),
     };
   }
 
