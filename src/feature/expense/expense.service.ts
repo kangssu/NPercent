@@ -69,6 +69,7 @@ export class ExpenseService {
     const lastDay = moment(today).endOf('month').format('YYYY-MM-DD HH:mm:ss');
     const remainingDay = moment(lastDay).date() - moment(today).date();
 
+    // TODO: budgets, expenses 데이터 존재하지 않을 경우 예외처리 추가.
     const budgets =
       await this.budgetLib.getBudgetsByUserIdAndCategoryIds(userId);
     const expenses = await this.expenseRepository.findBy({
@@ -152,6 +153,7 @@ export class ExpenseService {
           }
         };
 
+        // TODO: useAmount = 0, 음수일 경우 적정 금액 추천 추가.
         return {
           massage: massage(reasonableSpendingAmount, todaySpendingAmount),
           categoryName: userBudgetRatio.categoryName,
