@@ -1,3 +1,4 @@
+import * as moment from 'moment-timezone';
 import { CreateBudgetDto } from 'src/feature/budget/budget.dto';
 
 export class Util {
@@ -37,5 +38,17 @@ export class Util {
       .reduce((acc, cur) => {
         return acc + cur;
       });
+  }
+
+  public static calculationDate() {
+    const today = moment.tz('Asia/Seoul').format('YYYY-MM-DD HH:mm:ss');
+    const lastDay = moment(today).endOf('month').format('YYYY-MM-DD HH:mm:ss');
+    const remainingDay = moment(lastDay).date() - moment(today).date();
+
+    return {
+      today: today,
+      lastDay: lastDay,
+      remainingDay: remainingDay,
+    };
   }
 }

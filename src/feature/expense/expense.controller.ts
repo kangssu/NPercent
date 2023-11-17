@@ -70,7 +70,21 @@ export class ExpenseController {
   ): Promise<ApiResult<CategoriesAvailableAmountObject[]>> {
     return {
       success: true,
-      data: await this.expenseService.getExpenseByUserId(userResponse.id),
+      data: await this.expenseService.getTodayRecommendExpensesByUserId(
+        userResponse.id,
+      ),
+    };
+  }
+
+  @Get('/today-guide')
+  async getTodayGuideExpenses(
+    @UserInfo() userResponse: User,
+  ): Promise<ApiResult<CategoriesAvailableAmountObject[]>> {
+    return {
+      success: true,
+      data: await this.expenseService.getTodayGuideExpensesByUserId(
+        userResponse.id,
+      ),
     };
   }
 
