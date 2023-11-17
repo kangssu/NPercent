@@ -15,9 +15,16 @@ interface BudgetCategoriesRatioObject {
 }
 
 export interface CategoriesAvailableAmountObject {
-  massage: string;
   categoryName: string;
   useAmount: number;
+  massage?: string;
+  todayExpenseCategoriesTotal?: TodayExpenseCategoriesAmount;
+  todayExpenseTotalAmount?: number;
+}
+
+interface TodayExpenseCategoriesAmount {
+  categoryName: string;
+  expenseAmount: string;
 }
 
 @Injectable()
@@ -62,13 +69,10 @@ export class ExpenseService {
     return this.expenseRepository.findOneBy({ id: id });
   }
 
-  async getExpenseByUserId(
+  async getTodayRecommendExpensesByUserId(
     userId: number,
   ): Promise<CategoriesAvailableAmountObject[]> {
-    const today = moment.tz('Asia/Seoul').format('YYYY-MM-DD HH:mm:ss');
-    const lastDay = moment(today).endOf('month').format('YYYY-MM-DD HH:mm:ss');
-    const remainingDay = moment(lastDay).date() - moment(today).date();
-
+    const dates = Util.calculationDate();
     // TODO: budgets, expenses 데이터 존재하지 않을 경우 예외처리 추가.
     const budgets =
       await this.budgetLib.getBudgetsByUserIdAndCategoryIds(userId);
@@ -84,10 +88,11 @@ export class ExpenseService {
     }
 
     const reasonableSpendingAmount =
-      Math.floor(budgetTotalAmount / moment(lastDay).date() / 10) * 10;
+      Math.floor(budgetTotalAmount / moment(dates.lastDay).date() / 10) * 10;
     const todaySpendingAmount =
-      Math.floor((budgetTotalAmount - expenseTotalAmount) / remainingDay / 10) *
-      10;
+      Math.floor(
+        (budgetTotalAmount - expenseTotalAmount) / dates.remainingDay / 10,
+      ) * 10;
 
     const budgetCategoriesRatio: BudgetCategoriesRatioObject[] =
       this.calculationBudgetCategoriesRatio(budgets);
@@ -97,6 +102,71 @@ export class ExpenseService {
         reasonableSpendingAmount,
         todaySpendingAmount,
         budgetCategoriesRatio,
+      );
+
+    return categoriesAvailableAmount;
+  }
+
+  async getTodayGuideExpensesByUserId(userId: number) {
+    const dates = Util.calculationDate();
+    const budgets =
+      await this.budgetLib.getBudgetsByUserIdAndCategoryIds(userId);
+    const expenses = await this.expenseRepository
+      .createQueryBuilder('expense')
+      .leftJoinAndSelect('expense.category', 'category')
+      .where('expense.userId = :userId', { userId: userId })
+      .getMany();
+
+    const budgetTotalAmount = Util.SumCalculation(budgets);
+    const expenseTotalAmount = Util.SumCalculation(expenses);
+
+    for (let i = 0; i < budgets.length; i++) {
+      budgets[i]['totalAmount'] = budgetTotalAmount;
+    }
+
+    const todayExpense = expenses.filter((expense) => {
+      const expenseAt = moment(expense.expensedAt).format('YYYY-MM-DD');
+      const now = moment.tz('Asia/Seoul').format('YYYY-MM-DD');
+      if (expenseAt === now) {
+        return expense;
+      }
+    });
+    const todayExpenseTotalAmount = Util.SumCalculation(todayExpense);
+
+    const todayExpenseCategoriesTotal = todayExpense.reduce((acc, current) => {
+      const existingCategory = acc.find(
+        (acc) => acc.categoryName === current.category.name,
+      );
+
+      if (existingCategory) {
+        existingCategory.expenseAmount += Number(current.amount);
+      } else {
+        acc.push({
+          categoryName: current.category.name,
+          expenseAmount: Number(current.amount),
+        });
+      }
+
+      return acc;
+    }, []);
+
+    const reasonableSpendingAmount =
+      Math.floor(budgetTotalAmount / moment(dates.lastDay).date() / 10) * 10;
+    const todaySpendingAmount =
+      Math.floor(
+        (budgetTotalAmount - expenseTotalAmount) / dates.remainingDay / 10,
+      ) * 10;
+
+    const budgetCategoriesRatio: BudgetCategoriesRatioObject[] =
+      this.calculationBudgetCategoriesRatio(budgets);
+
+    const categoriesAvailableAmount: CategoriesAvailableAmountObject[] =
+      this.calculationCategoriesAvailableAmount(
+        reasonableSpendingAmount,
+        todaySpendingAmount,
+        budgetCategoriesRatio,
+        todayExpenseCategoriesTotal,
+        todayExpenseTotalAmount,
       );
 
     return categoriesAvailableAmount;
@@ -134,6 +204,8 @@ export class ExpenseService {
     reasonableSpendingAmount: number,
     todaySpendingAmount: number,
     budgetCategoriesRatio: BudgetCategoriesRatioObject[],
+    todayExpenseCategoriesAmount?: TodayExpenseCategoriesAmount[],
+    todayExpenseTotalAmount?: number,
   ) {
     const categoriesAvailableAmount = budgetCategoriesRatio.map(
       (userBudgetRatio) => {
@@ -153,13 +225,30 @@ export class ExpenseService {
           }
         };
 
-        // TODO: useAmount = 0, 음수일 경우 적정 금액 추천 추가.
-        return {
-          massage: massage(reasonableSpendingAmount, todaySpendingAmount),
-          categoryName: userBudgetRatio.categoryName,
-          useAmount:
-            Math.floor(useAmount < 5000 ? useAmount * 2 : useAmount / 10) * 10,
-        };
+        if (
+          todayExpenseTotalAmount &&
+          todayExpenseCategoriesAmount.length > 0
+        ) {
+          const result = todayExpenseCategoriesAmount.filter(
+            (test) => test.categoryName === userBudgetRatio.categoryName,
+          );
+
+          return {
+            totalExpenses: todayExpenseTotalAmount,
+            categoryName: userBudgetRatio.categoryName,
+            useAmount: Math.floor(useAmount / 10) * 10,
+            expenseAmount: result.length > 0 ? result[0].expenseAmount : 0,
+          };
+        } else {
+          // TODO: useAmount = 0, 음수일 경우 적정 금액 추천 추가.
+          return {
+            massage: massage(reasonableSpendingAmount, todaySpendingAmount),
+            categoryName: userBudgetRatio.categoryName,
+            useAmount:
+              Math.floor(useAmount < 5000 ? useAmount * 2 : useAmount / 10) *
+              10,
+          };
+        }
       },
     );
 
