@@ -18,13 +18,21 @@ export interface CategoriesAvailableAmountObject {
   categoryName: string;
   useAmount: number;
   massage?: string;
-  todayExpenseCategoriesTotal?: TodayExpenseCategoriesAmount;
+  todayExpenseCategoriesTotal?: ExpenseCategoriesAmount;
   todayExpenseTotalAmount?: number;
 }
 
-interface TodayExpenseCategoriesAmount {
+interface ExpenseCategoriesAmount {
   categoryName: string;
   expenseAmount: string;
+}
+
+export interface LastMonthAndThisMonthCompareObject {
+  lastMonthTotalAmountCompareRatio: number;
+  lastMonthCateogiesCompareRatio: {
+    categoryName: string;
+    ratio: number;
+  }[];
 }
 
 @Injectable()
@@ -133,7 +141,7 @@ export class ExpenseService {
     });
     const todayExpenseTotalAmount = Util.SumCalculation(todayExpense);
 
-    const todayExpenseCategoriesTotal = todayExpense.reduce((acc, current) => {
+    const todayExpenseCategoriesAmount = todayExpense.reduce((acc, current) => {
       const existingCategory = acc.find(
         (acc) => acc.categoryName === current.category.name,
       );
@@ -165,11 +173,164 @@ export class ExpenseService {
         reasonableSpendingAmount,
         todaySpendingAmount,
         budgetCategoriesRatio,
-        todayExpenseCategoriesTotal,
+        todayExpenseCategoriesAmount,
         todayExpenseTotalAmount,
       );
 
     return categoriesAvailableAmount;
+  }
+
+  async getStatistics(
+    userId: number,
+  ): Promise<LastMonthAndThisMonthCompareObject> {
+    const dates = Util.calculationDate();
+    const expenses = await this.expenseRepository
+      .createQueryBuilder('expenses')
+      .leftJoinAndSelect('expenses.category', 'category')
+      .where('expenses.userId = :userId', { userId: userId })
+      .getMany();
+
+    // 지난달 지출 리스트
+    const lastMotnExpenses = expenses.filter((expense) => {
+      const expensedAt = moment(expense.expensedAt).format('YYYY-MM-DD');
+      const day = moment(dates.lastMonth).date() - 1;
+      const startedAt = moment(dates.lastMonth)
+        .subtract(day, 'day')
+        .format('YYYY-MM-DD');
+      const endAt = moment(dates.lastMonth).add(1, 'day').format('YYYY-MM-DD');
+      return (
+        moment(expensedAt).isAfter(startedAt) &&
+        moment(expensedAt).isBefore(endAt)
+      );
+    });
+
+    // 이번달 지출 리스트
+    const thisMonthExpenses = expenses.filter((expense) => {
+      const expensedAt = moment(expense.expensedAt).format('YYYY-MM-DD');
+      const day = moment(dates.today).date() - 1;
+      const startedAt = moment(dates.today)
+        .subtract(day, 'day')
+        .format('YYYY-MM-DD');
+      const endAt = moment(dates.today).add(1, 'day').format('YYYY-MM-DD');
+      return (
+        moment(expensedAt).isAfter(startedAt) &&
+        moment(expensedAt).isBefore(endAt)
+      );
+    });
+
+    // 지난달 지출 총액
+    const lastMonthExpensesTotalAmount = lastMotnExpenses
+      .map((lastMotnExpense) => Number(lastMotnExpense.amount))
+      .reduce((acc, cur) => (acc += cur));
+
+    // 이번달 지출 총액
+    const thisMonthExpensesTotalAmount = thisMonthExpenses
+      .map((thisMonthExpense) => Number(thisMonthExpense.amount))
+      .reduce((acc, cur) => (acc += cur));
+
+    // 지난달 지출 총액 대비 이번달 지출 총액 증가 소비율 계산
+    const lastMonthTotalAmountCompareRatio = Math.floor(
+      ((thisMonthExpensesTotalAmount - lastMonthExpensesTotalAmount) /
+        lastMonthExpensesTotalAmount) *
+        100,
+    );
+
+    // 지난달 카테고리별 지출 합
+    const lastMonthCategoriesExpense: ExpenseCategoriesAmount[] =
+      lastMotnExpenses.reduce((acc, cur) => {
+        const existingCategory = acc.find(
+          (acc) => acc.categoryName === cur.category.name,
+        );
+
+        if (existingCategory) {
+          existingCategory.expenseAmount += Number(cur.amount);
+        } else {
+          acc.push({
+            categoryName: cur.category.name,
+            expenseAmount: Number(cur.amount),
+          });
+        }
+
+        return acc;
+      }, []);
+
+    // 이번달 카테고리별 지출 합
+    const thisMonthCategoriesExpense: ExpenseCategoriesAmount[] =
+      thisMonthExpenses.reduce((acc, cur) => {
+        const existingCategory = acc.find(
+          (acc) => acc.categoryName === cur.category.name,
+        );
+
+        if (existingCategory) {
+          existingCategory.expenseAmount += Number(cur.amount);
+        } else {
+          acc.push({
+            categoryName: cur.category.name,
+            expenseAmount: Number(cur.amount),
+          });
+        }
+
+        return acc;
+      }, []);
+
+    // 지난달 대비 이번달 카테고리별 소비 비율
+    const lastMonthCateogiesCompareRatio = thisMonthCategoriesExpense.map(
+      (thisMonthCategoryExpense) => {
+        const duplicateCategoriesExpense = [];
+        lastMonthCategoriesExpense.filter((lastMonthCategoryExpense, i) => {
+          if (
+            lastMonthCategoryExpense.categoryName ===
+            thisMonthCategoryExpense.categoryName
+          ) {
+            duplicateCategoriesExpense.push(lastMonthCategoryExpense);
+          }
+        });
+
+        if (duplicateCategoriesExpense.length > 0) {
+          return {
+            categoryName: thisMonthCategoryExpense.categoryName,
+            ratio: Math.floor(
+              ((Number(thisMonthCategoryExpense.expenseAmount) -
+                Number(duplicateCategoriesExpense[0].expenseAmount)) /
+                Number(duplicateCategoriesExpense[0].expenseAmount)) *
+                100,
+            ),
+          };
+        } else {
+          return {
+            categoryName: thisMonthCategoryExpense.categoryName,
+            ratio: 100,
+          };
+        }
+      },
+    );
+
+    const combination = [
+      ...lastMonthCategoriesExpense,
+      ...lastMonthCateogiesCompareRatio,
+    ];
+    const categoryNames = combination.map((a) => a.categoryName);
+    const duplicateCategoryNames = categoryNames.filter(
+      (categoryName, index) => categoryNames.indexOf(categoryName) !== index,
+    );
+
+    for (let i = 0; i < lastMonthCategoriesExpense.length; i++) {
+      if (
+        !duplicateCategoryNames.includes(
+          lastMonthCategoriesExpense[i].categoryName,
+        )
+      ) {
+        lastMonthCateogiesCompareRatio.push({
+          categoryName: lastMonthCategoriesExpense[i].categoryName,
+          ratio: 0,
+        });
+      }
+    }
+
+    return {
+      lastMonthTotalAmountCompareRatio: lastMonthTotalAmountCompareRatio,
+      lastMonthCateogiesCompareRatio: lastMonthCateogiesCompareRatio,
+    };
   }
 
   deleteExpenseById(id: number): Promise<Expense> {
@@ -204,7 +365,7 @@ export class ExpenseService {
     reasonableSpendingAmount: number,
     todaySpendingAmount: number,
     budgetCategoriesRatio: BudgetCategoriesRatioObject[],
-    todayExpenseCategoriesAmount?: TodayExpenseCategoriesAmount[],
+    todayExpenseCategoriesAmount?: ExpenseCategoriesAmount[],
     todayExpenseTotalAmount?: number,
   ) {
     const categoriesAvailableAmount = budgetCategoriesRatio.map(

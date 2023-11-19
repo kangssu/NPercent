@@ -44,11 +44,13 @@ export class Util {
     const today = moment.tz('Asia/Seoul').format('YYYY-MM-DD HH:mm:ss');
     const lastDay = moment(today).endOf('month').format('YYYY-MM-DD HH:mm:ss');
     const remainingDay = moment(lastDay).date() - moment(today).date();
+    const lastMonth = moment(today).subtract(1, 'month').format('YYYY-MM-DD')
 
     return {
       today: today,
       lastDay: lastDay,
       remainingDay: remainingDay,
+      lastMonth: lastMonth,
     };
   }
 }
