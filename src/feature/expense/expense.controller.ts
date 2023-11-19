@@ -13,6 +13,7 @@ import {
 import {
   ExpenseService,
   CategoriesAvailableAmountObject as CategoriesAvailableAmountObject,
+  LastMonthAndThisMonthCompareObject,
 } from './expense.service';
 import { CreateExpenseDto, UpdateExpenseDto } from './expense.dto';
 import { Expense } from 'src/entity/expense.entity';
@@ -85,6 +86,16 @@ export class ExpenseController {
       data: await this.expenseService.getTodayGuideExpensesByUserId(
         userResponse.id,
       ),
+    };
+  }
+
+  @Get('/statistics')
+  async getStatistics(
+    @UserInfo() userResponse: User,
+  ): Promise<ApiResult<LastMonthAndThisMonthCompareObject>> {
+    return {
+      success: true,
+      data: await this.expenseService.getStatistics(userResponse.id),
     };
   }
 
