@@ -88,10 +88,19 @@ npm run start:dev
 </br>
 
 ## 2. ERD 및 디렉토리 구조
-### 2-1. ERD
-![예산erd](https://github.com/kangssu/FoodStreet/assets/83870420/d557f319-9e31-411c-a66d-207e7bf9f0a4)
 
-### 2-2. 디렉토리 구조
+<details>
+<summary><strong>2-1. ERD</strong></summary>
+<div markdown="1">
+ 
+<img src="https://github.com/kangssu/FoodStreet/assets/83870420/d557f319-9e31-411c-a66d-207e7bf9f0a4">
+</div>
+</details>
+
+<details>
+<summary><strong>2-2. 디렉토리 구조</strong></summary>
+<div markdown="1">
+ 
 ```bash
 src
  ┣ config
@@ -154,6 +163,8 @@ src
  ┣ app.service.ts
  ┗ main.ts
 ```
+</div>
+</details>
 
 </br>
 
@@ -179,12 +190,12 @@ src
 
 ### 3-5 지출 기록
 * 카테고리별 지출 금액, 일시, 메모에 대한 내용을 생성, 수정, 삭제 가능
-* 지출 리스트는 1️⃣기간 2️⃣기간&&카테고리 3️⃣기간&&최소/최대 금액 4️⃣기간&&카테고리&&최소/최대 금액으로 지출 내역 조회 가능(단, 합계제외 처리된 지출은 지출 합계에서 제외)
+* 지출 리스트는 1️⃣ 기간 2️⃣ 기간&&카테고리 3️⃣ 기간&&최소/최대 금액 4️⃣ 기간&&카테고리&&최소/최대 금액으로 지출 내역 조회 가능(단, 합계제외 처리된 지출은 지출 합계에서 제외)
 
 ### 3-6 오늘 지출 추천
 * 유저가 설정한 총 예산대로 지출할 수 있도록 오늘 지출 가능 총액과 카테고리별 오늘 지출 가능 총액 계산하여 제공
 * 총 예산에서 남은 일수로 오늘 지출을 추천하고 만약 총 예산을 초과했더라도 최소한의 최소 지출 금액 추천
-* 1️⃣총 예산/한달 2️⃣총 예산/남은 일수로 각각 계산하여 `1<2`, `1=2`, `1>2` 총 3가지 경우에 따른 메세지 노출
+* 1️⃣ 총 예산/한달 2️⃣ 총 예산/남은 일수로 각각 계산하여 `1<2`, `1=2`, `1>2` 총 3가지 경우에 따른 메세지 노출
 
 ### 3-7. 오늘 지출 안내
 * 오늘 지출한 총액과 카테고리별 오늘 적정 금액, 오늘 지출 금액, 위험도 비율(적정 금액 기준) 제공
@@ -197,53 +208,53 @@ src
 
 ## 4. API 명세
 <details>
-<summary style="font-size:17px; font-weight:bold;">4-1. 회원가입</summary>
+<summary>4-1. 회원가입</summary>
 <div markdown="1">
 
 </div>
 </details>
 
 <details>
-<summary style="font-size:17px; font-weight:bold;">4-2. 로그인</summary>
+<summary>4-2. 로그인</summary>
 <div markdown="1">
 
 </div>
 </details>
 
 <details>
-<summary style="font-size:17px; font-weight:bold;">4-3. 카테고리</summary>
+<summary>4-3. 카테고리</summary>
 <div markdown="1">
 
 </div>
 </details>
 <details>
-<summary style="font-size:17px; font-weight:bold;">4-4. 예산 (& 예산 추천)</summary>
-<div markdown="1">
-
-</div>
-</details>
-
-<details>
-<summary style="font-size:17px; font-weight:bold;">4-5 지출 기록</summary>
-<div markdown="1">
-
-</div>
-</details>
-<details>
-<summary style="font-size:17px; font-weight:bold;">4-6 오늘 지출 추천</summary>
+<summary>4-4. 예산 (& 예산 추천)</summary>
 <div markdown="1">
 
 </div>
 </details>
 
 <details>
-<summary style="font-size:17px; font-weight:bold;">4-7. 오늘 지출 안내</summary>
+<summary>4-5 지출 기록</summary>
 <div markdown="1">
 
 </div>
 </details>
 <details>
-<summary style="font-size:17px; font-weight:bold;">4-8. 지출 통계</summary>
+<summary>4-6 오늘 지출 추천</summary>
+<div markdown="1">
+
+</div>
+</details>
+
+<details>
+<summary>4-7. 오늘 지출 안내</summary>
+<div markdown="1">
+
+</div>
+</details>
+<details>
+<summary>4-8. 지출 통계</summary>
 <div markdown="1">
 
 </div>
@@ -296,8 +307,8 @@ createCategory(
 <p>
  
 하나의 카테고리는 하나의 예산을 갖는다. 예를 들어 한명의 유저가 식비 카테고리를 선택하고</br>
-40만원 예산을 설정하여 저장하면 식비 카테고리로 예산을 더 추가할 때는 새롭게 생성하는 것이 아닌 기존의 예산에서</br>
-식비 카테고리의 예산을 50만원 이런식으로 수정하기 때문이다.</br>
+40만원 예산을 설정하여 저장하면 식비 카테고리로 예산을 더 추가할 때는 새롭게 생성하는 것이 아닌</br>
+기존의 예산에서 식비 카테고리의 예산을 50만원 이런식으로 수정하기 때문이다.</br>
 
 그렇기 때문에 Budget과 Category의 조인 관계를 1:1로 설정했지만 아래 에러가 발생하였다.</br>
 `Error: Duplicate entry '11' for key 'budgets.REL_4bb589bf6db49e8c1fd6af05f4’`</br>
