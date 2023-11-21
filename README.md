@@ -207,58 +207,6 @@ src
 </br>
 
 ## API 명세
-<details>
-<summary>4-1. 회원가입</summary>
-<div markdown="1">
-
-</div>
-</details>
-
-<details>
-<summary>4-2. 로그인</summary>
-<div markdown="1">
-
-</div>
-</details>
-
-<details>
-<summary>4-3. 카테고리</summary>
-<div markdown="1">
-
-</div>
-</details>
-<details>
-<summary>4-4. 예산 (& 예산 추천)</summary>
-<div markdown="1">
-
-</div>
-</details>
-
-<details>
-<summary>4-5 지출 기록</summary>
-<div markdown="1">
-
-</div>
-</details>
-<details>
-<summary>4-6 오늘 지출 추천</summary>
-<div markdown="1">
-
-</div>
-</details>
-
-<details>
-<summary>4-7. 오늘 지출 안내</summary>
-<div markdown="1">
-
-</div>
-</details>
-<details>
-<summary>4-8. 지출 통계</summary>
-<div markdown="1">
-
-</div>
-</details>
 
 </br>
 
@@ -342,10 +290,40 @@ _가 포함되는 컬럼은 Entity에 아래처럼 전부 컬럼 이름을 전�
 </p>
 </div>
 </details>
+
 <details>
-<summary><strong>📝 TypeORM으로 조인컬럼은 어떻게 사용할까?</strong></summary>
+<summary><strong>📝 Entity에서 조인 컬럼을 생략하는 것이 좋을까?</strong></summary>
 <div markdown="1">
 <p>
+
+Entity가 결국 DB 테이블 그 자체라고 생각했기 때문에 조인컬럼도 항상 명시를 해주다가 이번 팀 프로젝트때 생략해도 된다는 팀원의 얘기를 듣고 생략해서 사용해봤었다.</br>
+
+다만, 생략한다면 TypeORM의 `leftJoinAndSelect`로 가져와서 조건문에 사용해줄 수 있다.</br>
+```
+async getCategories(userId: number): Promise<Category[]> {
+    return await this.categoryRepository
+      .createQueryBuilder('categories')
+      .leftJoinAndSelect('categories.user','user')
+      .where('user.id = :userId', { userId })
+      .orWhere('user.id = :defaultUserId', { defaultUserId: 0 })
+      .getMany();
+  }
+```
+</br>
+
+Entity에 생략하지 않고 작성하면 조건문에서 바로 사용할 때 TypeORM의 `leftJoinAndSelect`를 생략하여 1줄을 줄일 수 있었다.</br>
+```
+async getCategories(userId: number): Promise<Category[]> {
+    return await this.categoryRepository
+      .createQueryBuilder('categories')
+      .where('categories.userId = :userId', { userId })
+      .orWhere('categories.userId = :defaultUserId', { defaultUserId: 0 })
+      .getMany();
+  }
+```
+</br>
+
+솔직히 코드상으로는 1줄의 차이였지만 단순히 조건문에 사용되는 조인컬럼이 필요한 함수가 많아진다면 굳이 Entity에서 생략할 필요가 있을까?라는 생각이 들게 되었고 생략해야하는 타당한 이유를 찾을 수 없었기 때문에 기존에 사용하던 방식으로 전체적으로 리펙토링을 했다.
 
 </p>
 </div>
@@ -370,6 +348,19 @@ _가 포함되는 컬럼은 Entity에 아래처럼 전부 컬럼 이름을 전�
 </details>
 
 <details>
+<summary><strong>📝 오늘 지출 추천에 여행, 운동등의 한 번에 지출되는 카테고리를 포함시켜야 할까?</strong></summary>
+<div markdown="1">
+<p>
+ 
+오늘 지출 추천시 남은 총 예산 금액에서 카테고리별 비율대로 사용할 수 있는 금액을 추천하는 것인데</br>
+여행이나 운동은 매일 지출하는 것이 아닌 한 달에 한번 20만원 또는 한 달에 3번 5만원씩 지출되는 것이라면 오늘 지출 추천 서비스와는 맞지 않는다고 생각했다.</br>
+
+그래서 사용자가 매일매일 사용할 수 있는 식비, 카페/간식, 교통 카테고리로만 오늘 지출 추천을 총 예산에서 다른 카테고리의 예산 금액을 제외하여서 계산해주었다.
+</p>
+</div>
+</details>
+
+<details>
 <summary><strong>📝 예산 설정하는 프론트 화면은 어떻게 구상할까?</strong></summary>
 <div markdown="1">
 <p>
@@ -382,6 +373,117 @@ _가 포함되는 컬럼은 Entity에 아래처럼 전부 컬럼 이름을 전�
 
 이전 개인 프로젝트 할 때 프론트도 같이 만들어봤던 경험 때문에 프론트를 먼저 생각해보고</br>
 로직을 생각하는 순서로 바뀐 계기가 되었다. 이렇게 생각하게 되니까 이해하기도 쉽고 로직이 머릿속에 그려지기 때문이다.
+</p>
+</div>
+</details>
+
+<details>
+<summary><strong>📝 유저들의 카테고리별 예산 비율의 객체 형식을 어떻게 만들까?</strong></summary>
+<div markdown="1">
+<p>
+
+자신의 카테고리별 예산 비율이 아닌, 다른 유저들의 카테고리별 예산 비율을 계산하여 가져와서 중복되는 카테고리들끼리 합쳐서 평균 비율을 구하는 것이 목적이였다.</br>
+
+초기에는 아래 코드처럼 userId=1 유저의 카테고리들을 내부 배열로 묶어서 분리하고 싶었다. (아래 결과값 참고)</br>
+
+```
+private budgetCategoriesTotalRatio(
+    otherUserBudgets: Budget[],
+    defaultCategory: string[],
+  ) {
+    const userCategoryBudgetRatio = otherUserBudgets.reduce((acc, current) => {
+      if (defaultCategory.includes(current.category.name)) {
+        const categoryBudgetRatio =
+          (Number(current.amount) / Number(current.totalAmount)) * 100;
+
+        acc[current.userId] = acc[current.userId] || [];
+        acc[current.userId].push({
+          categoryName: current.category.name,
+          ratio: Math.floor(categoryBudgetRatio * 10) / 10,
+        });
+      }
+
+      return acc;
+    }, {});
+
+    const changedUserCategoryBudgetRatio = Object.keys(
+      userCategoryBudgetRatio,
+    ).map((key) => {
+      return { userId: key, budgetCategoryRatio: userCategoryBudgetRatio[key] };
+    });
+    return changedUserCategoryBudgetRatio;
+  }
+
+// 결과값
+userCategoryBudgetRatio :  [
+  {
+    userId: '1',
+    budgetCategoryRatio: [ [Object], [Object], [Object], [Object] ]
+  }
+]
+
+// 결과값의 Object를 보기 위해 반복
+userCategoryBudgetRatio 1:  {
+  userId: '1',
+  budgetCategoryRatio: [
+    { categoryName: '편의점/마트', ratio: 14.2 },
+    { categoryName: '식비', ratio: 14.2 },
+    { categoryName: '교통', ratio: 42.8 },
+    { categoryName: '주거', ratio: 28.5 }
+  ]
+}
+```
+</br>
+
+하지만, 이렇게 할 경우 중복된 카테고리들끼리 비율을 합쳐야 하기 때문에 굳이 userId 끼리 묶어야 하나? 라는 의문점에 아래 코드로 다시 수정을 했다.</br>
+
+```
+private calculationUserBudgetTotalRatios(
+    userBudgetRatios: userBudgetRatiosObject[],
+    deduplicationUserIds: number[],
+  ) {
+    const userBudgetAverageRatios = userBudgetRatios
+      .reduce((acc, current) => {
+        const existingCategory = acc.find(
+          (item) =>
+            item.userId !== current.userId &&
+            item.categoryName === current.categoryName,
+        );
+
+        if (existingCategory) {
+          existingCategory.ratio += current.ratio;
+        } else {
+          acc.push({
+            categoryName: current.categoryName,
+            ratio: current.ratio,
+          });
+        }
+
+        return acc;
+      }, [])
+      .map((item) => ({
+        categoryName: item.categoryName,
+        ratio: Math.floor((item.ratio / deduplicationUserIds.length) * 10) / 10,
+      }));
+
+    return userBudgetAverageRatios;
+  }
+
+// 결과값 (각각의 중복되는 카테고리의 비율 합에서 평균까지 구한 값)
+userBudgetAverageRatios :  [
+  { categoryName: '편의점/마트', ratio: 7.1 },
+  { categoryName: '식비', ratio: 23.8 },
+  { categoryName: '교통', ratio: 24.7 },
+  { categoryName: '주거', ratio: 20.9 },
+  { categoryName: '카페/간식', ratio: 6.6 },
+  { categoryName: '쇼핑', ratio: 6.6 },
+  { categoryName: '여행', ratio: 6.6 }
+]
+```
+</br>
+
+다양한 방법으로 생각하다보니 처음 생각했던 코드보다 수정한 코드가 더 적합한 코드인 것 같다. 이때 느꼈던 것은 한 번 생각하고 끝이 아니라 더 다양하게 생각해보는 것도 중요하다고 생각하게 된 계기였다.
+
 </p>
 </div>
 </details>
