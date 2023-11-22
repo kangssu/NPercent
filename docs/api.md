@@ -205,6 +205,7 @@ GET /categories
 * **Success Response**
 </br>
 `userId=0`인 카테고리는 기본 카테고리로 설정
+
 ```
 {
     "success": true,
@@ -610,6 +611,7 @@ POST /expenses
 ```
 
 * **Request Body**
+
 |No| Name           | Type  | Description                       
 |---|-----------------|:-------:|----------------------------
 |1|categoryId|`number`|`카테고리 아이디`
@@ -649,6 +651,7 @@ PATCH /expenses/:id
 ```
 
 * **Request Body**
+
 |No| Name           | Type  | Description                       
 |---|-----------------|:-------:|----------------------------
 |1|categoryId|`number`|`카테고리 아이디`
