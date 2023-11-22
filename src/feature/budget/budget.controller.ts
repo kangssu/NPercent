@@ -134,6 +134,15 @@ export class BudgetController {
   async deleteBudgetById(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<ApiResult<Budget>> {
+    const budget = await this.budgetService.getBudgetById(id);
+
+    if (!budget) {
+      throw new HttpException(
+        ErrorMessage.NOT_FOUND_BUDGET,
+        ErrorHttpStatus.NOT_FOUND,
+      );
+    }
+
     return {
       success: true,
       data: await this.budgetService.deleteBudgetById(id),

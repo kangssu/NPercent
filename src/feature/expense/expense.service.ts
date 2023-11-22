@@ -141,6 +141,7 @@ export class ExpenseService {
     });
     const todayExpenseTotalAmount = Util.SumCalculation(todayExpense);
 
+    // TODO: todayExpenseCategoriesAmount가 존재하지 않을 경우 처리
     const todayExpenseCategoriesAmount = todayExpense.reduce((acc, current) => {
       const existingCategory = acc.find(
         (acc) => acc.categoryName === current.category.name,

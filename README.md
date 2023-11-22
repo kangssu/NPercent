@@ -207,6 +207,31 @@ src
 </br>
 
 ## API 명세
+|No| Title           | Method  | Path                       | Authorization |
+|---|-----------------|:-------:|----------------------------|:-------------:|
+|1|회원가입|`POST`|`/users/sign-up`|X|
+|2|로그인|`POST`|`/auth/sign-in`|X|
+|3|유저정보 수정|`PATCH`|`/users`|O|
+|4|카테고리 생성|`POST`|`/categories`|O|
+|5|카테고리 수정|`PATCH`|`/categories/:id`|O|
+|6|전체 카테고리 조회|`GET`|`/categories`|O|
+|7|카테고리 삭제|`DELETE`|`/categories/:id`|O|
+|8|예산 생성|`POST`|`/budgets`|O|
+|9|예산 수정|`PATCH`|`/budgets/:id`|O|
+|10|전체 예산 조회|`GET`|`/budgets`|O|
+|11|예산 추천|`POST`|`/budgets/recommend`|O|
+|12|예산 삭제|`DELETE`|`/budgets/:id`|O|
+|13|지출 생성|`POST`|`/expenses`|O|
+|14|지출 수정|`PATCH`|`/expenses/:id`|O|
+|15|지출 삭제|`DELETE`|`/expenses/:id`|O|
+|16|지출 검색|`POST`|`/search/expenses?startedAt=2023-11-10&endAt=...`|O|
+|17|오늘 지출 추천|`GET`|`/expenses/today-recommend`|O|
+|18|오늘 지출 안내|`GET`|`/expenses/today-guide`|O|
+|19|지출 통계|`GET`|`/expenses/statistics`|O|
+
+</br>
+
+[🌟🌟🌟 API 명세 상세보기 🌟🌟🌟]()
 
 </br>
 

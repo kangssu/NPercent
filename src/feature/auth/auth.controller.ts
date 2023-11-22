@@ -15,11 +15,6 @@ export class AuthController {
     @Body() loginUserDto: LoginUserDto,
   ): Promise<{ accessToken: string; user: User }> {
     const user = await this.authService.getUserByEmail(loginUserDto.email);
-    const passwordCheck = await bcrypt.compare(
-      loginUserDto.password,
-      user.password,
-    );
-
     if (!user) {
       throw new HttpException(
         ErrorMessage.NOT_FOUND_USER,
@@ -27,6 +22,10 @@ export class AuthController {
       );
     }
 
+    const passwordCheck = await bcrypt.compare(
+      loginUserDto.password,
+      user.password,
+    );
     if (!passwordCheck) {
       throw new HttpException(
         ErrorMessage.USER_PASSWORD_DOESNT_MATCH,

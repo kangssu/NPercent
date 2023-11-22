@@ -103,6 +103,15 @@ export class ExpenseController {
   async deleteExpenseById(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<ApiResult<Expense>> {
+    const expense = await this.expenseService.getExpenseById(id);
+
+    if (!expense) {
+      throw new HttpException(
+        ErrorMessage.NOT_FOUND_EXPENSE,
+        ErrorHttpStatus.NOT_FOUND,
+      );
+    }
+
     return {
       success: true,
       data: await this.expenseService.deleteExpenseById(id),

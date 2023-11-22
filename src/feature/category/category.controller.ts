@@ -107,7 +107,15 @@ export class CategoryController {
   async deleteCategoryById(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<ApiResult<Category>> {
+    const category = await this.categoryService.getCategoryById(id);
     // TODO: 예산으로 등록된 카테고리가 있을 경우 이셉션 처리
+    if (!category) {
+      throw new HttpException(
+        ErrorMessage.NOT_FOUND_CATEGORY,
+        ErrorHttpStatus.NOT_FOUND,
+      );
+    }
+
     return {
       success: true,
       data: await this.categoryService.deleteCategoryById(id),

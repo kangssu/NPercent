@@ -33,6 +33,9 @@ export class Util {
   }
 
   public static SumCalculation(array) {
+    if (array.length <= 0) {
+      return 0;
+    }
     return array
       .map((array) => Number(array.amount))
       .reduce((acc, cur) => {
@@ -44,7 +47,7 @@ export class Util {
     const today = moment.tz('Asia/Seoul').format('YYYY-MM-DD HH:mm:ss');
     const lastDay = moment(today).endOf('month').format('YYYY-MM-DD HH:mm:ss');
     const remainingDay = moment(lastDay).date() - moment(today).date();
-    const lastMonth = moment(today).subtract(1, 'month').format('YYYY-MM-DD')
+    const lastMonth = moment(today).subtract(1, 'month').format('YYYY-MM-DD');
 
     return {
       today: today,
