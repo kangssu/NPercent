@@ -651,6 +651,15 @@ POST /expenses
 }
 ```
 
+* **Fail Response**
+```
+// 지출한 카테고리로 등록된 예산이 없을 경우
+{
+    "statusCode": 400,
+    "message": "해당 카테고리로 등록된 예산이 없습니다."
+}
+```
+
 </br>
 
 ### 14. 지출 수정
@@ -863,6 +872,15 @@ GET /expenses/today-recommend
 }
 ```
 
+* **Fail Response**
+```
+// 존재하지 않은 예산일 경우
+{
+    "statusCode": 404,
+    "message": "존재하지 않는 예산 입니다."
+}
+```
+
 </br>
 
 ### 18. 오늘 지출 안내
@@ -888,6 +906,21 @@ GET /expenses/today-guide
             "expenseAmount": 0
         }
     ]
+}
+```
+
+* **Fail Response**
+```
+// 존재하지 않은 예산일 경우
+{
+    "statusCode": 404,
+    "message": "존재하지 않는 예산 입니다."
+}
+
+// 오늘 지출 내역이 없을 경우
+{
+    "statusCode": 404,
+    "message": "오늘 지출 내역이 없습니다!"
 }
 ```
 

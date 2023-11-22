@@ -12,8 +12,8 @@ import {
 } from '@nestjs/common';
 import {
   ExpenseService,
-  CategoriesAvailableAmountObject as CategoriesAvailableAmountObject,
   LastMonthAndThisMonthCompareObject,
+  TodayExpenseObject,
 } from './expense.service';
 import { CreateExpenseDto, UpdateExpenseDto } from './expense.dto';
 import { Expense } from 'src/entity/expense.entity';
@@ -23,17 +23,31 @@ import { JwtAuthGuard } from '../auth/guard/jwt.guard';
 import { ApiResult } from 'src/custom/resultApi';
 import { ErrorMessage } from 'src/enum/errorMessage.enum';
 import { ErrorHttpStatus } from 'src/enum/errorHttpStatus.enum';
+import { BudgetLib } from '../budget/budget.lib';
 
 @UseGuards(JwtAuthGuard)
 @Controller('/expenses')
 export class ExpenseController {
-  constructor(private readonly expenseService: ExpenseService) {}
+  constructor(
+    private readonly expenseService: ExpenseService,
+    private readonly budgetLib: BudgetLib,
+  ) {}
 
   @Post()
   async createExpense(
     @UserInfo() userResponse: User,
     @Body() createExpenseDto: CreateExpenseDto,
   ): Promise<ApiResult<Expense>> {
+    const budget = await this.budgetLib.getBudgetByCategoryId(
+      createExpenseDto.categoryId,
+    );
+    if (!budget) {
+      throw new HttpException(
+        ErrorMessage.NOT_BUDGET_REGISTERED_FOR_THAT_CATEGORY,
+        ErrorHttpStatus.BAD_REQEUST,
+      );
+    }
+
     return {
       success: true,
       data: await this.expenseService.createExpense(
@@ -68,7 +82,7 @@ export class ExpenseController {
   @Get('/today-recommend')
   async getTodayRecommendExpenses(
     @UserInfo() userResponse: User,
-  ): Promise<ApiResult<CategoriesAvailableAmountObject[]>> {
+  ): Promise<ApiResult<TodayExpenseObject>> {
     return {
       success: true,
       data: await this.expenseService.getTodayRecommendExpensesByUserId(
@@ -80,7 +94,7 @@ export class ExpenseController {
   @Get('/today-guide')
   async getTodayGuideExpenses(
     @UserInfo() userResponse: User,
-  ): Promise<ApiResult<CategoriesAvailableAmountObject[]>> {
+  ): Promise<ApiResult<TodayExpenseObject>> {
     return {
       success: true,
       data: await this.expenseService.getTodayGuideExpensesByUserId(

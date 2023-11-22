@@ -18,4 +18,8 @@ export class BudgetLib {
       .andWhere('category.id in (:ids)', { ids: [3, 4, 6] })
       .getMany();
   }
+
+  getBudgetByCategoryId(categoryId: number) {
+    return this.budgetRepository.findOne({ where: { categoryId: categoryId } });
+  }
 }
