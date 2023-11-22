@@ -231,7 +231,7 @@ src
 
 </br>
 
-[🌟🌟🌟 API 명세 상세보기 🌟🌟🌟]()
+[🌟🌟🌟 API 명세 상세보기 🌟🌟🌟](https://github.com/kangssu/NPercent/blob/main/docs/api.md)
 
 </br>
 
