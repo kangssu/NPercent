@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Budget } from 'src/entity/budget.entity';
 import { Repository } from 'typeorm';
@@ -8,6 +8,8 @@ import {
   RecommendBudgetDto,
 } from './budget.dto';
 import { Util } from 'src/util/util';
+import { ErrorMessage } from 'src/enum/errorMessage.enum';
+import { ErrorHttpStatus } from 'src/enum/errorHttpStatus.enum';
 
 interface userTotalAmountObject {
   userId: number;
@@ -94,13 +96,13 @@ export class BudgetService {
     userId: number,
     recommendBudgetDto: RecommendBudgetDto,
   ): Promise<{ categoryName: string; recommendAmount: number }[]> {
-    // TODO: 사용자가 입력한 예산 총합과 다른 유저들의 예산 총합이 같은 예산 리스트만 불러오기.
+    const recommendBudgetAmount = Number(recommendBudgetDto.amount);
     const otherUserBudgets = await this.budgetRepository
       .createQueryBuilder('budgets')
       .leftJoinAndSelect('budgets.category', 'category')
       .where('budgets.userId != :userId', { userId: userId })
       .getMany();
-    
+
     const otherUserBudgetTotalAmounts = await this.budgetRepository
       .createQueryBuilder('budgets')
       .select([
@@ -109,7 +111,24 @@ export class BudgetService {
       ])
       .where('budgets.userId != :userId', { userId: userId })
       .groupBy('budgets.userId')
+      .having('totalAmount  <= :max AND totalAmount >= :min', {
+        max: recommendBudgetAmount + recommendBudgetAmount / 2,
+        min: recommendBudgetAmount - recommendBudgetAmount / 2,
+      })
+      .orderBy('totalAmount', 'DESC')
+      .limit(10)
       .getRawMany();
+
+    /* 
+      추천 예산 금액과 일치하는 다른 유저의 총 예산 금액이 없을 경우 예외 처리.
+      즉, otherUserBudgetTotalAmounts이 빈 값이라면 아래 계산 로직을 타지 않고 프론트에서 처리.
+    */
+    if (otherUserBudgetTotalAmounts.length < 1) {
+      throw new HttpException(
+        ErrorMessage.NOT_HISTORY_OF_MATCHING_RECOMMEND_BUDGET_TOTAL_AMOUNT,
+        ErrorHttpStatus.BAD_REQEUST,
+      );
+    }
 
     // 1. 유저의 예산 리스트에 총 예산 금액 속성 추가.
     for (let i = 0; i < otherUserBudgets.length; i++) {
@@ -119,12 +138,15 @@ export class BudgetService {
             otherUserTotalAmount.userId === otherUserBudgets[i].userId,
         );
 
-      otherUserBudgets[i]['totalAmount'] =
-        userBudgetAddTotalAmounts.totalAmount;
+      if (userBudgetAddTotalAmounts) {
+        otherUserBudgets[i]['totalAmount'] =
+          userBudgetAddTotalAmounts.totalAmount;
+      }
     }
 
     // 2. 유저의 기본 카테고리별 예산금액 / 총 예산금액 비율 계산.
     const userBudgetRatios: userBudgetRatiosObject[] = otherUserBudgets
+      .filter((otherUserBudget) => otherUserBudget.totalAmount)
       .map((otherUserBudget, i) => {
         const defaultCategory = [
           '식비', '카페/간식', '쇼핑', '교통', '취미',

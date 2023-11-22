@@ -39,13 +39,18 @@ export class BudgetController {
     @UserInfo() userResponse: User,
     @Body() createBudgetDto: CreateBudgetDto[],
   ): Promise<ApiResult<Budget[]>> {
+    const categories =
+      await this.categoryLib.getCategoriesByCategoryIds(createBudgetDto);
+    if (categories.length < 1) {
+      throw new HttpException(
+        ErrorMessage.NOT_FOUND_CATEGORY,
+        ErrorHttpStatus.NOT_FOUND,
+      );
+    }
+
     const duplicateCategoryIds =
       Util.CheckDuplicateCategoryIds(createBudgetDto);
     const duplicateBudget = await this.budgetService.getBudgetsByCategoryIds(
-      userResponse.id,
-      createBudgetDto,
-    );
-    const myCategory = await this.categoryLib.getCategoriesByUserIdAndIds(
       userResponse.id,
       createBudgetDto,
     );
@@ -59,12 +64,6 @@ export class BudgetController {
     if (duplicateBudget.length > 0) {
       throw new HttpException(
         ErrorMessage.CATEGORY_ALREADY_REGISTERED_IN_THE_BUDGET,
-        ErrorHttpStatus.BAD_REQEUST,
-      );
-    }
-    if (myCategory.length < 1) {
-      throw new HttpException(
-        ErrorMessage.ANOTHER_USER_CATEGORY_EXISTS,
         ErrorHttpStatus.BAD_REQEUST,
       );
     }

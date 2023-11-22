@@ -9,4 +9,5 @@ export enum ErrorMessage {
   NOT_FOUND_BUDGET = '존재하지 않는 예산 입니다.',
   ANOTHER_USER_CATEGORY_EXISTS = '다른 유저의 카테고리가 존재합니다.',
   NOT_FOUND_EXPENSE = '존재하지 않는 지출 내역 입니다.',
+  NOT_HISTORY_OF_MATCHING_RECOMMEND_BUDGET_TOTAL_AMOUNT = '추천 예산 금액 범위의 내역이 없습니다.'
 }

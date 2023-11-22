@@ -9,7 +9,7 @@ import { BudgetLib } from './budget.lib';
 @Module({
   imports: [TypeOrmModule.forFeature([Budget]), CategoryModule],
   controllers: [BudgetController],
-  providers: [BudgetService,BudgetLib],
-  exports:[BudgetLib]
+  providers: [BudgetService, BudgetLib],
+  exports: [BudgetLib],
 })
 export class BudgetModule {}

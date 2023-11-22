@@ -389,6 +389,12 @@ POST /budgets
 
 * **Fail Response**
 ```
+// 카테고리가 존재하지 않을 경우
+{
+    "statusCode": 404,
+    "message": "존재하지 않는 카테고리 입니다."
+}
+
 // 중복된 카테고리가 같이 들어올 경우
 {
     "statusCode": 400,
@@ -399,12 +405,6 @@ POST /budgets
 {
     "statusCode": 400,
     "message": "예산에 이미 등록되어 있는 카테고리 입니다."
-}
-
-// 다른 유저의 카테고리로 등록할 경우
-{
-    "statusCode": 400,
-    "message": "다른 유저의 카테고리가 존재합니다."
 }
 ```
 
@@ -571,6 +571,15 @@ GET /budgets/recommend
         "recommendAmount": 59400
     }
 ]
+```
+
+* **Fail Response**
+```
+// 추천 예산 총 금액의 범위에 다른 유저의 예산 총 금액이 존재하지 않을 경우
+{
+    "statusCode": 400,
+    "message": "추천 예산 금액 범위의 내역이 없습니다."
+}
 ```
 
 </br>
