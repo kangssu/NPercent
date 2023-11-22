@@ -60,28 +60,28 @@ npm run start:dev
 <details>
 <summary>일정 관리</summary>
 <div markdown="1">
-<img src="https://github.com/kangssu/NPercent/assets/83870420/c3a2e425-35f1-4bac-b3cf-b175993c127c">
+<img src="https://github.com/kangssu/NPercent/assets/83870420/54404ddd-3076-47bd-bd36-b970e856115c">
 </div>
 </details>
 
 <details>
 <summary>요구사항 정리</summary>
 <div markdown="1">
-<img src="https://github.com/kangssu/NPercent/assets/83870420/e00a08cc-46f4-4d7f-9fff-91cc39efe6cb">
+<img src="https://github.com/kangssu/NPercent/assets/83870420/68609868-9658-4241-bc45-e149e4494bb5">
 </div>
 </details>
 
 <details>
 <summary>이슈 관리</summary>
 <div markdown="1">
-<img src="https://github.com/kangssu/NPercent/assets/83870420/81447805-58b8-46a4-b4c2-2c7fdc10aad0">
+<img src="https://github.com/kangssu/NPercent/assets/83870420/1806f6b4-2e7c-443b-b698-6faff7cd713e">
 </div>
 </details>
 
 <details>
 <summary>PR 관리</summary>
 <div markdown="1">
-<img src="https://github.com/kangssu/NPercent/assets/83870420/165d795b-1d33-44de-bc98-67a67be1c6c8">
+<img src="https://github.com/kangssu/NPercent/assets/83870420/663c8c9a-764a-4db0-a5ac-271722a69725">
 </div>
 </details>
 
@@ -93,7 +93,7 @@ npm run start:dev
 <summary><strong>ERD</strong></summary>
 <div markdown="1">
  
-<img src="https://github.com/kangssu/FoodStreet/assets/83870420/d557f319-9e31-411c-a66d-207e7bf9f0a4">
+<img src="https://github.com/kangssu/NPercent/assets/83870420/ec3119f5-da24-4492-878d-ec4ea0d32b31">
 </div>
 </details>
 
@@ -404,7 +404,7 @@ async getCategories(userId: number): Promise<Category[]> {
 등록되어 있을 경우 해당 내역들까지 넘길 필요가 있을까? 라는 생각이 들면서 고민을 하게 되었다.</br>
 그래서 아래 이미지처럼 등록시에는 여러개를, 수정시에는 개별로 수정/삭제 할 수 있게 구상했다.</br>
 
-<img src="https://github.com/kangssu/NPercent/assets/83870420/0c3a68c5-441c-4f10-bb67-eb27d96d8c85"></br>
+<img src="https://github.com/kangssu/NPercent/assets/83870420/045fbff8-c132-490a-ae87-986768df393a"></br>
 
 이전 개인 프로젝트 할 때 프론트도 같이 만들어봤던 경험 때문에 프론트를 먼저 생각해보고</br>
 로직을 생각하는 순서로 바뀐 계기가 되었다. 이렇게 생각하게 되니까 이해하기도 쉽고 로직이 머릿속에 그려지기 때문이다.
