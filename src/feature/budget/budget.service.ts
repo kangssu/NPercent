@@ -11,12 +11,12 @@ import { Util } from 'src/util/util';
 import { ErrorMessage } from 'src/enum/errorMessage.enum';
 import { ErrorHttpStatus } from 'src/enum/errorHttpStatus.enum';
 
-interface userTotalAmountObject {
+interface UserTotalAmountObject {
   userId: number;
   totalAmount: string;
 }
 
-interface userBudgetRatiosObject {
+interface UserBudgetRatiosObject {
   userId: number;
   categoryName: string;
   ratio: number;
@@ -132,7 +132,7 @@ export class BudgetService {
 
     // 1. 유저의 예산 리스트에 총 예산 금액 속성 추가.
     for (let i = 0; i < otherUserBudgets.length; i++) {
-      const userBudgetAddTotalAmounts: userTotalAmountObject =
+      const userBudgetAddTotalAmounts: UserTotalAmountObject =
         otherUserBudgetTotalAmounts.find(
           (otherUserTotalAmount) =>
             otherUserTotalAmount.userId === otherUserBudgets[i].userId,
@@ -145,7 +145,7 @@ export class BudgetService {
     }
 
     // 2. 유저의 기본 카테고리별 예산금액 / 총 예산금액 비율 계산.
-    const userBudgetRatios: userBudgetRatiosObject[] = otherUserBudgets
+    const userBudgetRatios: UserBudgetRatiosObject[] = otherUserBudgets
       .filter((otherUserBudget) => otherUserBudget.totalAmount)
       .map((otherUserBudget, i) => {
         const isDuplicateCategoryName = Util.isDefaultCategory(
@@ -198,7 +198,7 @@ export class BudgetService {
   }
 
   private calculationUserBudgetTotalRatios(
-    userBudgetRatios: userBudgetRatiosObject[],
+    userBudgetRatios: UserBudgetRatiosObject[],
     deduplicationUserIds: number[],
   ) {
     const userBudgetAverageRatios = userBudgetRatios

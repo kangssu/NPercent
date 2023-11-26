@@ -222,43 +222,20 @@ export class ExpenseService {
       .where('expenses.userId = :userId', { userId: userId })
       .getMany();
 
-    // 지난달 지출 리스트
-    const lastMotnExpenses = expenses.filter((expense) => {
-      const expensedAt = moment(expense.expensedAt).format('YYYY-MM-DD');
-      const day = moment(dates.lastMonth).date() - 1;
-      const startedAt = moment(dates.lastMonth)
-        .subtract(day, 'day')
-        .format('YYYY-MM-DD');
-      const endAt = moment(dates.lastMonth).add(1, 'day').format('YYYY-MM-DD');
-      return (
-        moment(expensedAt).isAfter(startedAt) &&
-        moment(expensedAt).isBefore(endAt)
-      );
-    });
+    // 지난달, 이번달 지출 리스트
+    const lastMotnExpenses = this.specificPeriodExpenses(
+      expenses,
+      dates.lastMonth,
+    );
+    const thisMonthExpenses = this.specificPeriodExpenses(
+      expenses,
+      dates.today,
+    );
 
-    // 이번달 지출 리스트
-    const thisMonthExpenses = expenses.filter((expense) => {
-      const expensedAt = moment(expense.expensedAt).format('YYYY-MM-DD');
-      const day = moment(dates.today).date() - 1;
-      const startedAt = moment(dates.today)
-        .subtract(day, 'day')
-        .format('YYYY-MM-DD');
-      const endAt = moment(dates.today).add(1, 'day').format('YYYY-MM-DD');
-      return (
-        moment(expensedAt).isAfter(startedAt) &&
-        moment(expensedAt).isBefore(endAt)
-      );
-    });
-
-    // 지난달 지출 총액
-    const lastMonthExpensesTotalAmount = lastMotnExpenses
-      .map((lastMotnExpense) => Number(lastMotnExpense.amount))
-      .reduce((acc, cur) => (acc += cur));
-
-    // 이번달 지출 총액
-    const thisMonthExpensesTotalAmount = thisMonthExpenses
-      .map((thisMonthExpense) => Number(thisMonthExpense.amount))
-      .reduce((acc, cur) => (acc += cur));
+    const lastMonthExpensesTotalAmount =
+      Util.calculationTotalAmount(lastMotnExpenses);
+    const thisMonthExpensesTotalAmount =
+      Util.calculationTotalAmount(thisMonthExpenses);
 
     // 지난달 지출 총액 대비 이번달 지출 총액 증가 소비율 계산
     const lastMonthTotalAmountCompareRatio = Math.floor(
@@ -267,43 +244,11 @@ export class ExpenseService {
         100,
     );
 
-    // 지난달 카테고리별 지출 합
+    // 지난달, 이번달 카테고리별 지출 합
     const lastMonthCategoriesExpense: ExpenseCategoriesAmount[] =
-      lastMotnExpenses.reduce((acc, cur) => {
-        const existingCategory = acc.find(
-          (acc) => acc.categoryName === cur.category.name,
-        );
-
-        if (existingCategory) {
-          existingCategory.expenseAmount += Number(cur.amount);
-        } else {
-          acc.push({
-            categoryName: cur.category.name,
-            expenseAmount: Number(cur.amount),
-          });
-        }
-
-        return acc;
-      }, []);
-
-    // 이번달 카테고리별 지출 합
+      this.calculattionExpenseTotalAmount(lastMotnExpenses);
     const thisMonthCategoriesExpense: ExpenseCategoriesAmount[] =
-      thisMonthExpenses.reduce((acc, cur) => {
-        const existingCategory = acc.find(
-          (acc) => acc.categoryName === cur.category.name,
-        );
-
-        if (existingCategory) {
-          existingCategory.expenseAmount += Number(cur.amount);
-        } else {
-          acc.push({
-            categoryName: cur.category.name,
-            expenseAmount: Number(cur.amount),
-          });
-        }
-
-        return acc;
-      }, []);
+      this.calculattionExpenseTotalAmount(thisMonthExpenses);
 
     // 지난달 대비 이번달 카테고리별 소비 비율
     const lastMonthCateogiesCompareRatio = thisMonthCategoriesExpense.map(
@@ -457,5 +402,41 @@ export class ExpenseService {
     );
 
     return categoriesAvailableAmount;
+  }
+
+  private specificPeriodExpenses(expenses: Expense[], date: string) {
+    const specificPeriodExpenses = expenses.filter((expense) => {
+      const expensedAt = moment(expense.expensedAt).format('YYYY-MM-DD');
+      const day = moment(date).date() - 1;
+      const startedAt = moment(date).subtract(day, 'day').format('YYYY-MM-DD');
+      const endAt = moment(date).add(1, 'day').format('YYYY-MM-DD');
+      return (
+        moment(expensedAt).isAfter(startedAt) &&
+        moment(expensedAt).isBefore(endAt)
+      );
+    });
+
+    return specificPeriodExpenses;
+  }
+
+  private calculattionExpenseTotalAmount(expense: Expense[]) {
+    const expenseTotalAmount = expense.reduce((acc, cur) => {
+      const existingCategory = acc.find(
+        (acc) => acc.categoryName === cur.category.name,
+      );
+
+      if (existingCategory) {
+        existingCategory.expenseAmount += Number(cur.amount);
+      } else {
+        acc.push({
+          categoryName: cur.category.name,
+          expenseAmount: Number(cur.amount),
+        });
+      }
+
+      return acc;
+    }, []);
+
+    return expenseTotalAmount;
   }
 }
