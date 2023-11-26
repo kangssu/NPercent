@@ -1,9 +1,4 @@
-import {
-  IsBoolean,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateExpenseDto {
   @IsNumber()
@@ -20,6 +15,10 @@ export class CreateExpenseDto {
 
   @IsBoolean()
   isExcludingTotal!: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  userId?: number;
 }
 
 export class UpdateExpenseDto {

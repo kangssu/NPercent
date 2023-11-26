@@ -24,32 +24,19 @@ import { UserInfo } from 'src/decorator/userDecorator';
 import { ErrorMessage } from 'src/enum/errorMessage.enum';
 import { ErrorHttpStatus } from 'src/enum/errorHttpStatus.enum';
 import { Util } from 'src/util/util';
-import { CategoryLib } from '../category/category.lib';
 
 @UseGuards(JwtAuthGuard)
 @Controller('/budgets')
 export class BudgetController {
-  constructor(
-    private readonly budgetService: BudgetService,
-    private readonly categoryLib: CategoryLib,
-  ) {}
+  constructor(private readonly budgetService: BudgetService) {}
 
   @Post()
   async createBudgets(
     @UserInfo() userResponse: User,
     @Body() createBudgetDto: CreateBudgetDto[],
   ): Promise<ApiResult<Budget[]>> {
-    const categories =
-      await this.categoryLib.getCategoriesByCategoryIds(createBudgetDto);
-    if (categories.length < 1) {
-      throw new HttpException(
-        ErrorMessage.NOT_FOUND_CATEGORY,
-        ErrorHttpStatus.NOT_FOUND,
-      );
-    }
-
     const duplicateCategoryIds =
-      Util.CheckDuplicateCategoryIds(createBudgetDto);
+      Util.checkDuplicateCategoryIds(createBudgetDto);
     const duplicateBudget = await this.budgetService.getBudgetsByCategoryIds(
       userResponse.id,
       createBudgetDto,

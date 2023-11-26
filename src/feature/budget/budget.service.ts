@@ -36,12 +36,12 @@ export class BudgetService {
     const budgets = [];
 
     for (let i = 0; i < createBudgetDto.length; i++) {
-      const amount = Util.RemoveAllExceptNumbers(createBudgetDto[i].amount);
+      const amount = Util.removeAllExceptNumbers(createBudgetDto[i].amount);
 
       const budget = await this.budgetRepository.save({
         ...createBudgetDto[i],
         amount: amount,
-        user: { id: userId },
+        userId: userId,
         categoryId: createBudgetDto[i].categoryId,
       });
       budgets.push(budget);
@@ -58,7 +58,7 @@ export class BudgetService {
       budget.categoryId = updateBudgetDto.categoryId;
     }
     if (updateBudgetDto.amount) {
-      const amount = Util.RemoveAllExceptNumbers(updateBudgetDto.amount);
+      const amount = Util.removeAllExceptNumbers(updateBudgetDto.amount);
       budget.amount = amount;
     }
     return await this.budgetRepository.save(budget);
@@ -87,7 +87,7 @@ export class BudgetService {
   getBudgets(userId: number): Promise<Budget[]> {
     return this.budgetRepository.find({
       where: {
-        user: { id: userId },
+        userId: userId,
       },
     });
   }
@@ -148,12 +148,11 @@ export class BudgetService {
     const userBudgetRatios: userBudgetRatiosObject[] = otherUserBudgets
       .filter((otherUserBudget) => otherUserBudget.totalAmount)
       .map((otherUserBudget, i) => {
-        const defaultCategory = [
-          '식비', '카페/간식', '쇼핑', '교통', '취미',
-          '의료', '여행', '교육', '편의점/마트', '주거', '보험/세금',
-        ];
+        const isDuplicateCategoryName = Util.isDefaultCategory(
+          otherUserBudget.category.name,
+        );
 
-        if (defaultCategory.includes(otherUserBudget.category.name)) {
+        if (isDuplicateCategoryName) {
           const ratioOfFoodExpenses =
             (Number(otherUserBudget.amount) /
               Number(otherUserBudget.totalAmount)) *

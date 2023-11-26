@@ -51,10 +51,8 @@ export class ExpenseService {
   ) {}
 
   createExpense(userId: number, createExpenseDto: CreateExpenseDto) {
-    return this.expenseRepository.save({
-      ...createExpenseDto,
-      user: { id: userId },
-    });
+    createExpenseDto.userId = userId;
+    return this.expenseRepository.save(createExpenseDto);
   }
 
   updateExpenseById(
@@ -101,8 +99,8 @@ export class ExpenseService {
       );
     }
 
-    const budgetTotalAmount = Util.SumCalculation(budgets);
-    const expenseTotalAmount = Util.SumCalculation(expenses);
+    const budgetTotalAmount = Util.calculationTotalAmount(budgets);
+    const expenseTotalAmount = Util.calculationTotalAmount(expenses);
 
     for (let i = 0; i < budgets.length; i++) {
       budgets[i]['totalAmount'] = budgetTotalAmount;
@@ -150,8 +148,8 @@ export class ExpenseService {
       );
     }
 
-    const budgetTotalAmount = Util.SumCalculation(budgets);
-    const expenseTotalAmount = Util.SumCalculation(expenses);
+    const budgetTotalAmount = Util.calculationTotalAmount(budgets);
+    const expenseTotalAmount = Util.calculationTotalAmount(expenses);
 
     for (let i = 0; i < budgets.length; i++) {
       budgets[i]['totalAmount'] = budgetTotalAmount;
@@ -171,7 +169,7 @@ export class ExpenseService {
       );
     }
 
-    const todayExpenseTotalAmount = Util.SumCalculation(todayExpense);
+    const todayExpenseTotalAmount = Util.calculationTotalAmount(todayExpense);
     const todayExpenseCategoriesAmount = todayExpense.reduce((acc, current) => {
       const existingCategory = acc.find(
         (acc) => acc.categoryName === current.category.name,
@@ -374,12 +372,9 @@ export class ExpenseService {
   private calculationBudgetCategoriesRatio(budgets: Budget[]) {
     const budgetCategoriesRatio = budgets
       .map((budget, i) => {
-        const defaultCategory = [
-          '식비', '카페/간식', '쇼핑', '교통', '취미',
-          '의료', '여행', '교육', '편의점/마트', '주거', '보험/세금',
-        ];
+        const isDefaultCategory = Util.isDefaultCategory(budget.category.name);
 
-        if (defaultCategory.includes(budget.category.name)) {
+        if (isDefaultCategory) {
           const categoryRatio =
             (Number(budget.amount) / Number(budget.totalAmount)) * 100;
 

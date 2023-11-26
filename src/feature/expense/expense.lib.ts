@@ -48,4 +48,10 @@ export class ExpenseLib {
     const expenses = await query.getMany();
     return expenses;
   }
+
+  getExpenseByCategoryId(categoryId: number): Promise<Expense> {
+    return this.expenseRepository.findOne({
+      where: { categoryId: categoryId },
+    });
+  }
 }

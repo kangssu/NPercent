@@ -2,7 +2,7 @@ import * as moment from 'moment-timezone';
 import { CreateBudgetDto } from 'src/feature/budget/budget.dto';
 
 export class Util {
-  public static CheckDuplicateDefaultCategory(categoryName: string) {
+  public static isDefaultCategory(categoryName: string) {
     const defaultCategory = [
       '식비',
       '카페/간식',
@@ -20,7 +20,7 @@ export class Util {
     return defaultCategory.includes(categoryName);
   }
 
-  public static CheckDuplicateCategoryIds(createBudgetDto: CreateBudgetDto[]) {
+  public static checkDuplicateCategoryIds(createBudgetDto: CreateBudgetDto[]) {
     const categoryIds = createBudgetDto.map((budget) => budget.categoryId);
     const duplicateCategoryIds = categoryIds.filter(
       (item, index) => categoryIds.indexOf(item) !== index,
@@ -28,11 +28,11 @@ export class Util {
     return duplicateCategoryIds;
   }
 
-  public static RemoveAllExceptNumbers(amount: string) {
+  public static removeAllExceptNumbers(amount: string) {
     return amount.replace(/[^0-9]/g, '');
   }
 
-  public static SumCalculation(array) {
+  public static calculationTotalAmount(array) {
     if (array.length <= 0) {
       return 0;
     }

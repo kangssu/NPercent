@@ -15,10 +15,8 @@ export class CategoryService {
     userId: number,
     createCategoryDto: CreateCategoryDto,
   ): Promise<Category> {
-    return this.categoryRepository.save({
-      ...createCategoryDto,
-      user: { id: userId },
-    });
+    createCategoryDto.userId = userId;
+    return this.categoryRepository.save(createCategoryDto);
   }
 
   updateCategoryByIdAndUserId(
@@ -36,7 +34,7 @@ export class CategoryService {
     return this.categoryRepository.findOne({
       where: {
         name: name,
-        user: { id: userId },
+        userId: userId,
       },
     });
   }

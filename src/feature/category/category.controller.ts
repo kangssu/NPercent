@@ -20,26 +20,28 @@ import { ErrorMessage } from 'src/enum/errorMessage.enum';
 import { ErrorHttpStatus } from 'src/enum/errorHttpStatus.enum';
 import { JwtAuthGuard } from '../auth/guard/jwt.guard';
 import { Util } from 'src/util/util';
+import { BudgetLib } from '../budget/budget.lib';
 
 @UseGuards(JwtAuthGuard)
 @Controller('/categories')
 export class CategoryController {
-  constructor(private readonly categoryService: CategoryService) {}
+  constructor(
+    private readonly categoryService: CategoryService,
+    private readonly budgetLib: BudgetLib,
+  ) {}
 
   @Post()
   async createCategory(
     @UserInfo() userResponse: User,
     @Body() createCategoryDto: CreateCategoryDto,
   ): Promise<ApiResult<Category>> {
-    const isDuplicate = Util.CheckDuplicateDefaultCategory(
-      createCategoryDto.name,
-    );
+    const isDefaultCategory = Util.isDefaultCategory(createCategoryDto.name);
     const category = await this.categoryService.getCategoryByNameAndUserId(
       createCategoryDto.name,
       userResponse.id,
     );
 
-    if (isDuplicate || category) {
+    if (isDefaultCategory || category) {
       throw new HttpException(
         ErrorMessage.DUPLICATE_CATEGORY_NAME_EXISTS,
         ErrorHttpStatus.BAD_REQEUST,
@@ -62,9 +64,7 @@ export class CategoryController {
     @Body() updateCategoryDto: UpdateCategoryDto,
   ): Promise<ApiResult<Category>> {
     const category = await this.categoryService.getCategoryById(id);
-    const isDuplicate = Util.CheckDuplicateDefaultCategory(
-      updateCategoryDto.name,
-    );
+    const isDefaultCategory = Util.isDefaultCategory(updateCategoryDto.name);
     const duplicateCategory =
       await this.categoryService.getCategoryByNameAndUserId(
         updateCategoryDto.name,
@@ -77,7 +77,7 @@ export class CategoryController {
         ErrorHttpStatus.NOT_FOUND,
       );
     }
-    if (isDuplicate || duplicateCategory) {
+    if (isDefaultCategory || duplicateCategory) {
       throw new HttpException(
         ErrorMessage.DUPLICATE_CATEGORY_NAME_EXISTS,
         ErrorHttpStatus.BAD_REQEUST,
@@ -112,6 +112,14 @@ export class CategoryController {
       throw new HttpException(
         ErrorMessage.NOT_FOUND_CATEGORY,
         ErrorHttpStatus.NOT_FOUND,
+      );
+    }
+
+    const budget = await this.budgetLib.getBudgetByCategoryId(id);
+    if (budget) {
+      throw new HttpException(
+        ErrorMessage.NOT_DELETE_BUDGET_REGISTERED_CATEGORY,
+        ErrorHttpStatus.BAD_REQEUST,
       );
     }
 

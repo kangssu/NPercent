@@ -7,7 +7,7 @@ import { CategoryModule } from '../category/category.module';
 import { BudgetLib } from './budget.lib';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Budget]), CategoryModule],
+  imports: [TypeOrmModule.forFeature([Budget])],
   controllers: [BudgetController],
   providers: [BudgetService, BudgetLib],
   exports: [BudgetLib],
